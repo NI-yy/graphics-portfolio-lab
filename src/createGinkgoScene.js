@@ -93,7 +93,6 @@ export function createGinkgoScene(engine) {
  let treeTint=0;
  const branches={positions:[],indices:[],colors:[],uvs:[]}, leaves={positions:[],indices:[],colors:[],uvs:[]};
  function tube(a,b,r0,r1,initial,sides=10){
-  const axis=b.subtract(a).normalize();
   const base=branches.positions.length/3, rings=r0<.025?3:7;
   const control=a.add(initial.scale(Vector3.Distance(a,b)*.51));
   for(let ring=0;ring<rings;ring++) for(let i=0;i<sides;i++){
