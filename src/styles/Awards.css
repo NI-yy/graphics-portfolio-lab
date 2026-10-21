@@ -1,0 +1,18 @@
+section#awards .award-category h3 {
+  color: var(--color-blue-dark);
+  font-size: var(--font-size-small);
+  font-weight: lighter;
+  margin-bottom: 0px;
+}
+
+section#awards .award-category p {
+  color: var(--color-navy);
+  font-size: var(--font-size-large);
+  margin: 0;
+}
+
+section#awards .award-category .url-text {
+  color: #3b3c46;
+  text-decoration: underline; /* 下線を明示的に指定 */
+  text-decoration-color: #2c2e44; /* 下線の色をテキスト色に合わせる */
+}

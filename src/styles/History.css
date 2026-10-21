@@ -1,0 +1,59 @@
+.history-section {
+  padding: 40px 0px;
+}
+
+.timeline-date {
+  font-weight: bold;
+  color: #444;
+}
+
+.timeline-text {
+  color: #666;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+/* タイムラインのスタイル調整 */
+.MuiTimeline-root {
+  padding: 0 !important;
+}
+
+.MuiTimelineItem-root {
+  min-height: 100px;
+}
+
+/* カスタムアイコンのスタイル (サイズ調整) */
+.custom-timeline-icon {
+  width: 20px; /* 画像に合わせて調整 */
+  height: 20px;
+  object-fit: contain; /* アスペクト比を保ちつつサイズに収める */
+}
+
+/* ドットとコネクタのデザインを調整 */
+.MuiTimelineDot-root {
+  padding: 0 !important; /* デフォルトのpaddingをリセット */
+  background-color: transparent !important; /* デフォルトの背景色を無効化 */
+  width: 30px !important; /* ドットのサイズを調整 (画像サイズに合わせる) */
+  height: 30px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.MuiTimelineConnector-root {
+  background-color: var(--color-blue-dark) !important; /* コネクタの色を維持 */
+}
+
+/* 右側配置時の調整 */
+.MuiTimelineContent-root {
+  text-align: left; /* テキストを左寄せ */
+  padding-left: 16px !important; /* ドットとの間隔を調整 */
+}
+
+.MuiTimelineSeparator-root {
+  margin-right: 16px; /* コネクタとコンテンツの間隔を調整 */
+}
+
+.MuiTimelineItem-root::before {
+  display: none !important; /* 左の隙間を無くす */
+}

@@ -1,0 +1,137 @@
+.landscape-hero {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: min(940px, 100svh);
+  min-height: 680px;
+  overflow: hidden;
+  color: #f7f4e9;
+  background: #26475b;
+}
+.landscape-hero__fallback,
+.landscape-hero__canvas,
+.landscape-hero__shade { position: absolute; inset: 0; width: 100%; height: 100%; }
+.landscape-hero__fallback {
+  background: linear-gradient(#37637a 0%, #a8babc 48%, #125064 49%, #072d3c 100%);
+}
+.landscape-hero--meadow .landscape-hero__fallback {
+  background: linear-gradient(#477e95 0%, #bfcfbd 48%, #687b44 49%, #263e29 100%);
+}
+.landscape-hero__canvas { touch-action: pan-y; outline: none; }
+.landscape-hero__shade {
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(3,22,29,.58) 0%, rgba(3,22,29,.31) 38%, transparent 70%),
+              linear-gradient(0deg, rgba(1,17,23,.83) 0%, transparent 36%, transparent 74%, rgba(5,19,25,.28) 100%);
+}
+.landscape-hero--meadow .landscape-hero__shade {
+  background: linear-gradient(90deg, rgba(26,24,19,.61), rgba(26,24,19,.23) 50%, transparent 78%),
+              linear-gradient(0deg, rgba(24,21,16,.75), transparent 40%, rgba(22,21,18,.16));
+}
+.landscape-hero__vertical {
+  position: absolute;
+  z-index: 1;
+  right: 38px;
+  top: 45%;
+  writing-mode: vertical-rl;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .25em;
+  color: rgba(255,255,255,.8);
+}
+.landscape-hero__content {
+  position: absolute;
+  z-index: 1;
+  left: clamp(30px, 8vw, 140px);
+  bottom: clamp(145px, 18vh, 220px);
+  max-width: 900px;
+}
+.landscape-hero__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 0 0 26px;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: .26em;
+}
+.landscape-hero__eyebrow-line { display: inline-block; width: 30px; height: 1px; background: #f7f4e9; }
+.landscape-hero h1 {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+  font-size: clamp(74px, 9vw, 156px);
+  line-height: .89;
+  letter-spacing: -.065em;
+  text-shadow: 0 4px 36px rgba(0,0,0,.12);
+}
+.landscape-hero h1 em { font-weight: 400; }
+.landscape-hero__description {
+  margin: 33px 0 0;
+  font-size: clamp(14px, 1.16vw, 17px);
+  line-height: 1.9;
+  letter-spacing: .045em;
+  text-shadow: 0 1px 16px rgba(0,0,0,.5);
+}
+.landscape-hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 48px;
+  margin-top: 30px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid rgba(255,255,255,.8);
+  color: inherit;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  transition: gap .2s ease;
+}
+.landscape-hero__cta:hover { gap: 58px; }
+.landscape-hero__bottomline {
+  position: absolute;
+  z-index: 2;
+  left: clamp(30px, 8vw, 140px);
+  right: clamp(30px, 6vw, 110px);
+  bottom: 39px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  border-top: 1px solid rgba(255,255,255,.38);
+  padding-top: 20px;
+}
+.landscape-hero__modes { display: flex; align-items: center; gap: 28px; }
+.landscape-hero__view-label,
+.landscape-hero__hint { font-size: 10px; font-weight: 650; letter-spacing: .19em; color: rgba(255,255,255,.75); }
+.landscape-hero__view-label { margin-right: 12px; }
+.landscape-hero__modes button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  padding: 0 0 4px;
+  color: rgba(255,255,255,.62);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .13em;
+  cursor: pointer;
+}
+.landscape-hero__modes button span { font-size: 10px; font-weight: 400; }
+.landscape-hero__modes button[aria-pressed='true'] { color: #fff; border-bottom: 1px solid #fff; }
+.landscape-hero button:focus-visible, .landscape-hero a:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
+@media (max-width: 700px) {
+  .landscape-hero { height: 100svh; min-height: 690px; }
+  .landscape-hero__vertical, .landscape-hero__hint, .landscape-hero__view-label { display: none; }
+  .landscape-hero__content { left: 26px; right: 20px; bottom: 175px; }
+  .landscape-hero__eyebrow { font-size: 9px; gap: 9px; letter-spacing: .14em; margin-bottom: 19px; }
+  .landscape-hero__eyebrow-line { width: 18px; }
+  .landscape-hero h1 { font-size: clamp(60px, 16vw, 92px); }
+  .landscape-hero__description { margin-top: 26px; font-size: 13px; line-height: 1.8; }
+  .landscape-hero__cta { margin-top: 25px; font-size: 10px; gap: 28px; }
+  .landscape-hero__bottomline { left: 26px; right: 26px; bottom: 28px; }
+  .landscape-hero__modes { gap: 28px; }
+  .landscape-hero__modes button { font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) { .landscape-hero__cta { transition: none; } }

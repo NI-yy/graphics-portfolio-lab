@@ -1,0 +1,22 @@
+section#publications .publication-category h3 {
+    color: var(--color-gray-dark);
+    font-size: var(--font-size-large);
+    font-weight: lighter;
+    margin-bottom: 10px;
+}
+
+section#publications .publication-category p {
+    color: var(--color-navy);
+    font-size: var(--font-size-medium);
+    margin: 0 0 1em 0;
+}
+
+section#publications .publication-category .url-text {
+    color: var(--color-gray-dark);
+    text-decoration: underline;
+    text-decoration-color: #3b3c46;
+}
+
+.underline-name {
+    text-decoration: underline;
+}

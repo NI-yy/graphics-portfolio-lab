@@ -1,0 +1,30 @@
+{
+  "short_name": "y_y | Portfolio",
+  "name": "y_y | Portfolio",
+  "icons": [
+    {
+      "src": "panda-icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "panda-icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
+    {
+      "src": "panda-icon-transparent-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "panda-icon-transparent-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#cecbcc", 
+  "background_color": "#cecbcc"
+}

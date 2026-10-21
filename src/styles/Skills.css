@@ -1,0 +1,5 @@
+.skills-section {
+  padding: 20px 0;
+  max-height: 400px; /* 必要に応じて調整 */
+  overflow-y: auto; /* 高さを超えた場合にスクロールを許可 */
+}

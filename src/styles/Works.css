@@ -1,0 +1,41 @@
+  /* Works.css */
+  .works-section {
+    padding: 20px 0;
+  }
+
+.works-container {
+    display: flex;
+    flex-direction: column;
+  }
+  
+
+.work-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.work-card h3{
+  color: var(--color-blue-dark);
+  font-size: var(--font-size-large);
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.work-card p {
+  color: var(--color-gray-dark);
+  font-size: var(--font-size-medium);
+}
+
+.work-image {
+  object-fit: cover;
+}
+
+.Stack{
+  margin-top: 10px;
+}
+
+/*意図しないpaddingが存在していたので明示的に消去*/
+.MuiContainer-root{
+  padding: 0 !important;
+}
