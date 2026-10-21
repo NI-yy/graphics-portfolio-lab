@@ -1,3 +1,4 @@
+import { createGinkgoScene } from './createGinkgoScene';
 import { Color4, Effect, Engine, FreeCamera, PostProcess, Scene, Vector2, Vector3 } from '@babylonjs/core';
 
 // The view is traced from procedural height fields; no photographic scene texture is sampled.
@@ -129,21 +130,22 @@ export function createLandscape(canvas) {
   camera.setTarget(Vector3.Zero());
   scene.activeCamera=camera;
   const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let selectedMode='ocean', active=true, pointer=null;
+  let selectedMode='ginkgo', active=true, pointer=null, paused=false, elapsed=0;
+  let ginkgo=null;
   const look={x:0,y:0};
   const post=new PostProcess('procedural landscape','landscape',
     ['resolution','look','time','mode'],[],1,camera);
   post.onApply=(effect)=>{
     effect.setVector2('resolution',new Vector2(engine.getRenderWidth(),engine.getRenderHeight()));
     effect.setVector2('look',new Vector2(look.x,look.y));
-    effect.setFloat('time',reducedMotion?0:performance.now()*0.001);
+    effect.setFloat('time',elapsed);
     effect.setFloat('mode',selectedMode==='meadow'?1:0);
   };
   const observer=new IntersectionObserver(([entry])=>{active=entry.isIntersecting;},{threshold:0.01});
   observer.observe(canvas);
   const onVisibility=()=>{active=!document.hidden;};
   const onResize=()=>engine.resize();
-  const onPointerDown=(event)=>{pointer={x:event.clientX,y:event.clientY};};
+  const onPointerDown=(event)=>{canvas.setPointerCapture(event.pointerId);pointer={x:event.clientX,y:event.clientY};};
   const onPointerMove=(event)=>{
     if(!pointer)return;
     look.x=Math.max(-1,Math.min(1,look.x+(event.clientX-pointer.x)/650));
@@ -157,16 +159,26 @@ export function createLandscape(canvas) {
   canvas.addEventListener('pointerdown',onPointerDown);
   window.addEventListener('pointermove',onPointerMove);
   window.addEventListener('pointerup',onPointerUp);
-  engine.runRenderLoop(()=>{if(active)scene.render();});
+  canvas.addEventListener('pointercancel',onPointerUp);
+  engine.runRenderLoop(()=>{
+    if(!active || document.hidden)return;
+    if(!paused && !reducedMotion)elapsed+=Math.min(engine.getDeltaTime(),50)*.001;
+    if(selectedMode==='ginkgo'){
+      if(!ginkgo)ginkgo=createGinkgoScene(engine);
+      ginkgo.update(elapsed,look);ginkgo.scene.render();
+    }else scene.render();
+  });
   return {
-    setMode(nextMode){selectedMode=nextMode;},
+    setMode(nextMode){selectedMode=nextMode;look.x=0;look.y=0;},
+    setPaused(value){paused=value;},
     dispose(){
       resizeObserver.disconnect();observer.disconnect();
       document.removeEventListener('visibilitychange',onVisibility);
       canvas.removeEventListener('pointerdown',onPointerDown);
       window.removeEventListener('pointermove',onPointerMove);
       window.removeEventListener('pointerup',onPointerUp);
-      engine.stopRenderLoop();scene.dispose();engine.dispose();
+      canvas.removeEventListener('pointercancel',onPointerUp);
+      engine.stopRenderLoop();ginkgo?.scene.dispose();scene.dispose();engine.dispose();
     },
   };
 }

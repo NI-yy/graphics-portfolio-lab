@@ -269,7 +269,7 @@ function Works() {
   ];
 
   return (
-    <section id="works" className="works-section">
+    <section className="works-section">
       <Container maxWidth={false}>
         <h2>Works</h2>
         <div className="works-container">

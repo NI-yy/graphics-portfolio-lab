@@ -1,83 +1,27 @@
-.landscape-hero {
-  margin: 36px 0 56px;
-}
-
-.landscape-hero h2 {
-  margin-bottom: 16px;
-}
-
-.landscape-hero__viewport {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  max-height: 560px;
-  min-height: 280px;
-  overflow: hidden;
-  background: #4b798c;
-  border: 1px solid #d3d3d3;
-}
-
-.landscape-hero__fallback,
-.landscape-hero__canvas {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.landscape-hero__fallback {
-  background: linear-gradient(#47758d 0%, #c1cbca 50%, #2c7080 51%, #174551);
-}
-
-.landscape-hero--meadow .landscape-hero__fallback {
-  background: linear-gradient(#608ca1 0%, #cbd1b6 50%, #78865b 51%, #465d39);
-}
-
-.landscape-hero__canvas {
-  touch-action: pan-y;
-  outline: none;
-}
-
-.landscape-hero__controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding-top: 12px;
-  color: var(--color-gray-dark);
-  font-size: 14px;
-}
-
-.landscape-hero__modes {
-  display: flex;
-  gap: 8px;
-}
-
-.landscape-hero__modes button {
-  padding: 7px 18px;
-  border: 1px solid #aeb9be;
-  border-radius: 4px;
-  background: var(--color-white);
-  color: var(--color-blue-dark);
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.landscape-hero__modes button[aria-pressed='true'] {
-  border-color: var(--color-blue-dark);
-  background: var(--color-blue-dark);
-  color: white;
-}
-
-.landscape-hero__modes button:focus-visible {
-  outline: 2px solid var(--color-blue-dark);
-  outline-offset: 2px;
-}
-
-@media (max-width: 700px) {
-  .landscape-hero__viewport {
-    aspect-ratio: 4 / 3;
-    min-height: 230px;
-  }
-  .landscape-hero__hint { display: none; }
+.landscape-background { position: fixed; inset: 0; z-index: 0; background: linear-gradient(140deg,#94b7cb,#d4c277 52%,#434b26); }
+.landscape-background--ocean { background: linear-gradient(#9abac7,#517d86 50%,#234a53); }
+.landscape-background--meadow { background: linear-gradient(#9abac7,#a3b7ab 45%,#6b7e45); }
+.landscape-background canvas { width: 100%; height: 100%; display: block; pointer-events: none; }
+.landscape-background canvas.interactive { pointer-events: auto; touch-action: none; cursor: grab; }
+.landscape-background canvas.interactive:active { cursor: grabbing; }
+.landscape-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg,#111b1420,#0d130e14 50%,#0d130e26),linear-gradient(0deg,#0e160b66,transparent 40%); }
+.landscape-controls { position: fixed; z-index: 30; left: 4vw; bottom: 35px; width: 250px; color: #f4f4e9; padding: 20px; border: 1px solid #ffffff30; border-radius: 8px; background: rgba(22,28,24,.86); backdrop-filter: blur(14px); box-sizing: border-box; }
+.landscape-note { font-size: 14px; line-height: 1.9; margin: 0 0 18px; color: #e3e6d8; }
+.scene-tabs { display: flex; gap: 5px; }
+.scene-tabs button { font-size: 13px; white-space: nowrap; flex: 1; border: 1px solid #ffffff26; color: #dce0d4; background: transparent; border-radius: 4px; padding: 9px 8px; cursor: pointer; }
+.scene-tabs button[aria-pressed=true] { background: #dacf9e; border-color: #dacf9e; color: #292e23; }
+.scene-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 13px; }
+.scene-actions button { color: #e1e4d8; border: 0; background: transparent; cursor: pointer; padding: 6px 0; font-size: 12px; }
+.scene-actions span { margin-left: 10px; }
+.scene-status { color: #b7beb0; font-size: 10px; margin: 10px 0 0; min-height: 15px; }
+.scene-only .landscape-shade { opacity: 0; }
+@media(max-width: 1050px) { .landscape-controls { left: 20px; bottom: 20px; width: 220px; padding: 16px; } }
+@media(max-width: 760px) {
+  .landscape-controls { left: 12px; right: 12px; width: auto; bottom: max(10px, env(safe-area-inset-bottom)); padding: 10px 13px; display: grid; grid-template-columns: 1fr auto; gap: 4px 14px; }
+  .landscape-note { display: none; }
+  .scene-tabs { min-width: 0; align-self: center; }
+  .scene-tabs button { padding: 9px 7px; font-size: 12px; }
+  .scene-actions { margin: 0; align-items: center; gap: 13px; }
+  .scene-actions span { display: none; }
+  .scene-status { grid-column: 1/-1; margin: 2px 0 0; }
 }

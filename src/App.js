@@ -8,15 +8,13 @@ import History from './components/History';
 import Footer from './components/Footer';
 import LandscapeHero from './components/LandscapeHero';
 import { useState, useEffect, useRef } from 'react';
-// React Component
-import Burger from '@animated-burgers/burger-squeeze' 
-// don't forget the styles
-import '@animated-burgers/burger-squeeze/dist/styles.css' 
 import './App.css';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 // カスタムブレークポイントを定義
 const theme = createTheme({
+  palette: { mode: 'dark', primary: { main: '#e2cc8d' }, background: { paper: '#252725' }, text: { primary: '#f3f2ec', secondary: '#c6c9c3' } },
+  typography: { fontFamily: 'inherit' },
   breakpoints: {
     values: {
       xs: 0,    // 
@@ -31,6 +29,15 @@ const theme = createTheme({
 function App() {
   const [activeSection, setActiveSection] = useState('about');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [sceneOnly, setSceneOnly] = useState(false);
+  useEffect(() => {
+    if (!sceneOnly) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (event) => { if (event.key === 'Escape') setSceneOnly(false); };
+    window.addEventListener('keydown', onKey);
+    return () => { document.body.style.overflow = previous; window.removeEventListener('keydown', onKey); };
+  }, [sceneOnly]);
   const sidebarRef = useRef(null);
   const sectionRefs = useRef({
     about: null,
@@ -89,24 +96,22 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
+    <ThemeProvider theme={theme}>
+    <div className={`App ${sceneOnly ? 'scene-only' : ''}`}>
+      <LandscapeHero sceneOnly={sceneOnly} onToggleScene={() => setSceneOnly((value) => !value)} />
       <Sidebar
         activeSection={activeSection}
         isMenuOpen={isMenuOpen}
         toggleMenu={toggleMenu}
         ref={sidebarRef}
       />
-      <div className="content-wrapper">
-        <div className="hamburger-menu-container">
-          <div className="burger-icon-container">
-          <Burger onClick={toggleMenu} className={`${isMenuOpen ? 'open' : ''}`} />
-          </div>
-        </div>
+      <div className="content-wrapper portfolio-content" inert={sceneOnly ? true : undefined}>
         <div className="main-content-container">
           <div className="main-content">
             <section id="about" ref={(el) => (sectionRefs.current.about = el)}>
               <Header />
-              <LandscapeHero />
+              <div className="profile-links"><a href="https://github.com/NI-yy" target="_blank" rel="noreferrer">GitHub ↗</a><a href="https://x.com/yy88804046" target="_blank" rel="noreferrer">X ↗</a><a href="https://www.linkedin.com/in/nozomu-iwai-b3a218325/" target="_blank" rel="noreferrer">LinkedIn ↗</a></div>
+
             </section>
             <main>
               <section id="works" ref={(el) => (sectionRefs.current.works = el)}>
@@ -132,6 +137,7 @@ function App() {
         </div>
       </div>
     </div>
+    </ThemeProvider>
   );
 }
 

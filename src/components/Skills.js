@@ -31,7 +31,7 @@ function Skills() {
       {
         label: 'Skill Level (%)',
         data: skills.map((skill) => skill.level),
-        backgroundColor: '#1f3555',
+        backgroundColor: '#c7b579',
         borderRadius: 10,
         barThickness: 20,
       },
@@ -103,7 +103,7 @@ function Skills() {
             size: 20,
             weight: 'bold',
           },
-          color: '#1f3555',
+          color: '#e0e2da',
         },
         grid: {
           display: false,
@@ -118,7 +118,7 @@ function Skills() {
   };
 
   return (
-    <section id="skills" className="skills-section">
+    <section className="skills-section">
       <h2>Skills</h2>
       <div style={{ height: '300px', width: '100%', position: 'relative' }}>
         <Bar data={data} options={options} />

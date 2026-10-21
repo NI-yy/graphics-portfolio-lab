@@ -2,34 +2,29 @@
 https://ni-yy.github.io/graphics-portfolio-lab/
 
 
-Babylon.js による海と草原の描画を試す、独立したポートフォリオです。
-元のサイト `NI-yy.github.io` とは別のリポジトリで公開します。
+日常で撮影した風景を Babylon.js で再現する、独立したポートフォリオです。
+元サイトの自己紹介・作品・研究・経歴を保ち、全画面の描画背景に重ねています。
 
-## Interactive landscape
+## 背景
 
-The opening scene is rendered with Babylon.js. A fragment shader traces view
-rays against animated ocean and rolling terrain height fields. The sky, clouds,
-water reflections, grass colors, and atmospheric haze are procedural. **THE SEA**
-and **THE FIELD** switch environments; dragging rotates the view. There is no
-photographic backdrop in the interactive landscape. This uses shader-based
-height-field tracing, not hardware ray tracing or path tracing. Text and
-navigation remain available if WebGL cannot start.
+- イチョウ: 写真の見上げる構図を参考にした手続き的な枝・扇形の葉。葉脈、葉ごとの色、風による揺れをシェーダーで描画します。写真そのものは背景に使用していません。
+- 海・草原: 高さ場をレイでたどるシェーダーによる描画。ハードウェアレイトレーシングやパストレーシングではありません。
+- 「風景だけ見る」で本文を隠し、ドラッグで視点を変更できます。Escape で本文に戻れます。
+- 動きの停止、OS の動きを減らす設定、非表示タブでの描画停止に対応しています。
 
 ```sh
-npm install
+npm ci --legacy-peer-deps
 npm start
 npm run build
 ```
 
-The scene lives in `src/createLandscape.js`; its React wrapper and responsive
-layout are in `src/components/LandscapeHero.js` and
-`src/styles/LandscapeHero.css`. The Babylon.js bundle loads only when the
-opening scene mounts.
+背景の管理は `src/createLandscape.js`、イチョウの生成は `src/createGinkgoScene.js`、
+UI は `src/components/LandscapeHero.js` にあります。Babylon.js は遅延読み込みします。
+`main` への push で GitHub Pages に公開されます。
 
 ## Library used
 
 - [React Simple Typewriter](https://www.npmjs.com/package/react-simple-typewriter)
-- [Animated Burger Components](https://march08.github.io/animated-burgers/)
 - [Material UI - Card](https://mui.com/material-ui/react-card/)
 - [react-chartjs-2](https://react-chartjs-2.js.org/)
 - [Material UI - Timeline](https://mui.com/material-ui/react-timeline/)

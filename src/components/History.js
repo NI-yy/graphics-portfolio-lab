@@ -22,7 +22,7 @@ function History() {
   ];
 
   return (
-    <section id="history" className="history-section">
+    <section className="history-section">
       <h2>History</h2>
       <Timeline position="right">
         {history.map((item, index) => (

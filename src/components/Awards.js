@@ -3,7 +3,7 @@ import '../styles/Awards.css';
 
 function Awards() {
   return (
-    <section id="awards" className="awards-section">
+    <section className="awards-section">
       <h2>Awards</h2>
       <div className="award-category">
         <h3>2026/03</h3>

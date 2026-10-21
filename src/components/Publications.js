@@ -3,7 +3,7 @@ import '../styles/Publications.css';
 
 function Publications() {
   return (
-    <section id="publications" className="publications-section">
+    <section className="publications-section">
       <h2>Publications</h2>
       <div className="publication-category">
         <h3>Demonstrations and Poster</h3>
