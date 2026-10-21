@@ -1,11 +1,35 @@
-.about-panel { display: grid; grid-template-columns: 1.12fr .88fr; gap: 9vw; padding: 78px 0 0; }
-.about-panel__eyebrow { display: none; }
-.about-panel h2 { margin: 0 0 45px; color: #0d2a30; font-family: Georgia,serif; font-size: clamp(58px, 6.5vw, 112px); font-weight: 400; line-height: .97; letter-spacing: -.07em; }
-.about-panel h2 em { font-weight: 400; color: #648382; }
-.about-panel__role { font-size: 11px; font-weight: 750; line-height: 1.8; letter-spacing: .19em; color: #527272; text-transform: uppercase; }
-.about-panel__body { padding-top: 10px; color: #4a6264; font-size: 15px; line-height: 2; }
-.about-panel__body p { margin: 0 0 22px; }
-.about-panel__body .about-panel__lead { margin-bottom: 28px; color: #163c42; font-size: clamp(22px, 2.1vw, 30px); font-weight: 500; line-height: 1.55; }
-.about-panel__body a { color: #287882; text-underline-offset: 3px; }
-@media (max-width: 900px) { .about-panel { grid-template-columns: 1fr; gap: 25px; } }
-@media (max-width: 700px) { .about-panel { padding-top: 52px; } .about-panel h2 { font-size: 56px; margin-bottom: 26px; } }
+.header-section {
+    text-align: left;
+    margin-bottom: 20px;
+  }
+  
+
+  
+  .text-block-1{
+    color: var(--color-navy);
+    font-size: var(--font-size-large);
+    padding: 4px 0;
+  }
+  
+  .text-block-2 {
+    color: var(--color-blue-dark);
+    font-size: var(--font-size-xxlarge);
+    font-weight: bold;
+  }
+  
+  .text-block-3 {
+    color: var(--color-blue-dark);
+    font-size: var(--font-size-xlarge);
+    font-weight: bold;
+    padding: 12px 0;
+  }
+
+  .text-block-4 {
+    color: var(--color-navy);
+    font-size: var(--font-size-large);
+    padding: 12px 0;
+  }
+  
+  .gamma-link{
+    color: var(--color-gray-dark);
+  }

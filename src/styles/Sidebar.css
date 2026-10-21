@@ -161,23 +161,3 @@
       transform: translateX(-100%); /* 隠れる */
     }
   }
-
-  .sidebar,
-  .sidebar-open {
-    background-color: #12313b;
-  }
-
-  .sidebar-name,
-  .nav-list ul li {
-    color: #e5eee7;
-  }
-
-  .nav-list ul li:hover,
-  .nav-list ul li.active {
-    background-color: #ffffff1c;
-  }
-
-  .social_icons img {
-    filter: brightness(0) invert(1);
-    opacity: 0.85;
-  }

@@ -36,27 +36,18 @@ function LandscapeHero() {
   };
 
   return (
-    <section className={`landscape-hero landscape-hero--${mode}`} aria-label="Interactive ocean and meadow landscape">
-      <div className="landscape-hero__fallback" aria-hidden="true" />
-      <canvas ref={canvasRef} className="landscape-hero__canvas" aria-hidden="true" />
-      <div className="landscape-hero__shade" aria-hidden="true" />
-      <div className="landscape-hero__vertical" aria-hidden="true">IN PURSUIT OF PRESENCE — VOL. 01</div>
-      <div className="landscape-hero__content">
-        <p className="landscape-hero__eyebrow"><span className="landscape-hero__eyebrow-line" /> GRAPHICS ENGINEER · NOZOMU IWAI</p>
-        <h1>Light becomes<br /><em>a place.</em></h1>
-        <p className="landscape-hero__description">
-          光の反射、波のゆらぎ、風の気配。<br />
-          見るだけでなく、そこにいると感じる世界をつくる。
-        </p>
-        <a className="landscape-hero__cta" href="#works">EXPLORE THE WORK <span aria-hidden="true">↗</span></a>
+    <section className={`landscape-hero landscape-hero--${mode}`} aria-label="海と草原の描画デモ">
+      <h2>描画デモ</h2>
+      <div className="landscape-hero__viewport">
+        <div className="landscape-hero__fallback" aria-hidden="true" />
+        <canvas ref={canvasRef} className="landscape-hero__canvas" aria-label={mode === 'ocean' ? '海の描画' : '草原の描画'} />
       </div>
-      <div className="landscape-hero__bottomline">
-        <div className="landscape-hero__modes" role="group" aria-label="Landscape view">
-          <span className="landscape-hero__view-label">CHOOSE A WORLD</span>
-          <button type="button" aria-pressed={mode === 'ocean'} onClick={() => selectMode('ocean')}><span>01</span> THE SEA</button>
-          <button type="button" aria-pressed={mode === 'meadow'} onClick={() => selectMode('meadow')}><span>02</span> THE FIELD</button>
+      <div className="landscape-hero__controls">
+        <div className="landscape-hero__modes" role="group" aria-label="表示する風景">
+          <button type="button" aria-pressed={mode === 'ocean'} onClick={() => selectMode('ocean')}>海</button>
+          <button type="button" aria-pressed={mode === 'meadow'} onClick={() => selectMode('meadow')}>草原</button>
         </div>
-        <span className="landscape-hero__hint">{sceneReady ? 'DRAG THE SCENE TO LOOK AROUND' : 'LOADING THE SCENE'}</span>
+        <span className="landscape-hero__hint">{sceneReady ? 'ドラッグで視点を変更' : '読み込み中'}</span>
       </div>
     </section>
   );

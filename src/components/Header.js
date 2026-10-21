@@ -1,34 +1,55 @@
 import React from 'react';
 import '../styles/Header.css';
+import { Typewriter } from 'react-simple-typewriter'
 
 function Header() {
+  const words = ['Unity.', 'AR/VR devices.','Action & Story-driven Games.', 'watching the animation artworks.', ''];
+
   return (
-    <div className="about-panel">
-      <div className="about-panel__intro">
-        <p className="about-panel__eyebrow">ABOUT / NOZOMU IWAI</p>
-        <h2>Technology for<br /><em>felt experiences.</em></h2>
-        <p className="about-panel__role">Game Software Engineer<br />Graphics & XR</p>
+    <section id="about" className="header-section">
+      <div class="text-block-1">
+        <text class="tex-line-1">
+        Hello👋
+        </text>
       </div>
-      <div className="about-panel__body">
-        <p className="about-panel__lead">
-          ゲームと XR を通じて、そこにいると感じられる体験をつくりたい。
-        </p>
-        <p>
-          岩井望です。y_y というユーザーネームでも活動しています。
-          <a href="https://x.com/gamma_game_com" target="_blank" rel="noopener noreferrer">北大ゲーム開発コミュニティ Gamma</a>
-          の部長を務めながらゲーム開発に取り組んできました。
-          ゲームや XR デバイスのグラフィックスエンジニアを目指しています。
-        </p>
-        <p>
-          大学では Human-Computer Interaction の領域で、XR によるユーザー支援や、
-          XR デバイスをより使いやすくするインターフェースについて研究しています。
-        </p>
-        <p>
-          アクションゲームとストーリー重視のゲームが好きです。
-          アニメーション、とくに web 系アニメーターの方々の作画にも惹かれています。
-        </p>
+      <div class="text-block-2">
+        <text class="tex-line-2">
+        I'm Nozomu Iwai, Game Software Engineer.
+        </text>
       </div>
-    </div>
+      <div class="text-block-3">
+        <text class="tex-line-3">
+        I like {' '}
+        </text>
+        <Typewriter
+        words={words}
+        loop={0}
+        cursor
+        cursorStyle='|'
+        typeSpeed={150}
+        deleteSpeed={50}
+        delaySpeed={1000}
+      />
+      </div>
+      <div class="text-block-4">
+      <text className="text-lg">
+      こんにちは、北海道大学 大学院情報科学院 修士2年の岩井望です。<br />
+      y_yというユーザネームをよく使います。<br />
+      <br />
+      <a href="https://x.com/gamma_game_com" className="gamma-link">
+        北大ゲーム開発コミュニティGamma
+      </a>
+      の部長を務めながらゲーム開発を行ってきました。<br />
+      そしてXRのデバイスに強い興味があり、ゲーム、そしてXRデバイスのグラフィックスエンジニアを目指しています。
+      大学ではHuman-Computer Interactionという領域において、XRによるユーザ支援や
+      XRデバイスをより使いやすくするためのインタフェースに関する研究を行っています。<br />
+      <br />
+      アクションゲームとストーリー重視のゲームが好きです。<br />
+      またアニメを見ることが好きで、web系アニメーターの方々の作画を見るのが好きです。<br />
+      <br />
+      </text>
+      </div>
+    </section>
   );
 }
 
