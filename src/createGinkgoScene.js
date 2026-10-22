@@ -33,7 +33,7 @@ uniform sampler2D leafTexture;
 uniform sampler2D barkTexture;
 void main(){
  vec3 n=normalize(vNormal);
- vec3 sun=normalize(vec3(-.42,.79,.44));
+ vec3 sun=normalize(vec3(.18,.94,.28));
  float facing=dot(n,sun);
  vec3 c=vColor.rgb;
  if(foliage>.5){
@@ -41,18 +41,18 @@ void main(){
    if(leaf.a<.48)discard;
    c*=leaf.rgb;
    float cluster=sin(vPosition.x*.87+vPosition.z*.42)*sin(vPosition.z*.8-vPosition.y*.66);
-   float diffuse=.51+.28*max(facing,0.)+.16*max(-facing,0.);
-   float translucency=pow(max(-facing,0.),1.8)*.22;
-   c*=diffuse+translucency+cluster*.09;
-   c+=vec3(.13,.11,.025)*translucency;
+   float diffuse=.57+.36*max(facing,0.)+.14*max(-facing,0.);
+   float translucency=pow(max(-facing,0.),1.5)*.36;
+   c*=diffuse+translucency+cluster*.12;
+   c+=vec3(.22,.16,.025)*translucency;
    float towardSun=max(dot(normalize(vPosition-vec3(0.,1.8,-1.)),sun),0.);
-   c+=vec3(.24,.18,.025)*pow(towardSun,12.);
+   c+=vec3(.30,.21,.025)*pow(towardSun,12.);
  }else{
    vec3 bark=texture2D(barkTexture,vec2(vUV.x,vUV.y*.35)).rgb;
-   c*=bark*(.66+.43*max(facing,0.));
+   c*=bark*(.48+.38*max(facing,0.));
  }
- float fog=1.-exp(-length(vPosition)*.0025);
- c=mix(c,vec3(.77,.80,.72),fog);
+ float fog=1.-exp(-length(vPosition)*.0018);
+ c=mix(c,vec3(.81,.82,.74),fog);
  gl_FragColor=vec4(c,1.);
 }`;
 Effect.ShadersStore.canopySkyVertexShader = `
@@ -68,13 +68,12 @@ float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
 void main(){
  vec3 d=normalize(direction);
- vec3 col=mix(vec3(.92,.94,.94),vec3(.47,.65,.82),pow(max(d.y,0.),.75));
+ vec3 col=mix(vec3(.93,.95,.98),vec3(.75,.84,.94),pow(max(d.y,0.),.72));
  vec2 p=d.xz/max(d.y,.15)*2.;
  float cloud=noise(p*.65)*.53+noise(p*1.8)*.32+noise(p*5.1)*.15;
- col=mix(col,vec3(.98,.98,.97),smoothstep(.52,.74,cloud)*.78);
- float sun=max(dot(d,normalize(vec3(-.42,.79,.44))),0.);
- col+=vec3(1.,.94,.77)*pow(sun,75.)*.34;
- col+=vec3(1.)*pow(sun,430.)*.8;
+ col=mix(col,vec3(1.,.995,.97),smoothstep(.48,.72,cloud)*.70);
+ float sun=max(dot(d,normalize(vec3(.18,.94,.28))),0.);
+ col+=vec3(1.,.95,.83)*pow(sun,44.)*.13;
  gl_FragColor=vec4(col,1.);
 }`;
 
@@ -82,14 +81,14 @@ export function createGinkgoScene(engine) {
  const scene=new Scene(engine);
  scene.clearColor=new Color4(.55,.7,.8,1);
  const camera=new FreeCamera('under the ginkgo trees',new Vector3(0,1.8,-1),scene);
- camera.fov=1.35; camera.minZ=.1; camera.maxZ=250;
- camera.setTarget(new Vector3(0,14,6));
+ camera.fov=1.46; camera.minZ=.1; camera.maxZ=250;
+ camera.setTarget(new Vector3(0,18,4));
  const sky=MeshBuilder.CreateSphere('autumn sky',{diameter:180,segments:24,sideOrientation:Mesh.BACKSIDE},scene);
  const skyMat=new ShaderMaterial('sky',scene,'canopySky',{attributes:['position'],uniforms:['worldViewProjection']});
  skyMat.backFaceCulling=false; sky.material=skyMat;
  let seed=417;
  const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
- const density=engine.getRenderWidth()<700?.58:1;
+ const density=engine.getRenderWidth()<700?.46:1;
  let treeTint=0;
  const branches={positions:[],indices:[],colors:[],uvs:[]}, leaves={positions:[],indices:[],colors:[],uvs:[]};
  function tube(a,b,r0,r1,initial,sides=10){
@@ -117,7 +116,7 @@ export function createGinkgoScene(engine) {
   const u=Vector3.Cross(n,Vector3.Up()).normalize(),v=Vector3.Cross(u,n).normalize();
   const base=leaves.positions.length/3;
   const shade=.78+random()*.32;
-  const rgb=[shade*(.94+random()*.13),shade*(.91+treeTint),shade*(.77+random()*.19)];
+  const rgb=[shade*(.98+random()*.13),shade*(.88+treeTint),shade*(.61+random()*.20)];
   const width=size*1.9,height=size*1.52;
   const corners=[[-1,0,0,1],[1,0,1,1],[-1,1,0,0],[1,1,1,0]];
   for(const [x,y,uvX,uvY] of corners){
@@ -154,10 +153,17 @@ export function createGinkgoScene(engine) {
    branch(start,child,length*(.56+random()*.15),radius*(k===0?.57:.38),depth-1,dir);
   }
  }
- for(let row=0;row<6;row++) for(const side of [-1,1]){
-  const x=side*(3.9+random()*2.0),z=-7+row*7.5+random()*2;
-  treeTint=random()*.10;
-  branch(new Vector3(x,-1,z),new Vector3(-side*(.12+random()*.08),1,(random()-.5)*.1).normalize(),6+random()*1.4,.42+random()*.14,4);
+ // Overlapping crowns frame a patch of sky, as in the upward-looking photo.
+ const trees=[
+  [-3.0,-3.5,1.15],[-5.2,2.0,1.0],[-5.8,10.0,.94],[-4.2,18.0,.92],[-6.0,27.0,.9],
+  [3.5,-4.0,1.2],[4.2,2.5,1.13],[5.4,9.0,1.06],[3.8,15.5,1.0],[5.7,24.0,.94],
+  [-1.4,23.0,.87],[1.3,29.0,.85],[-8.2,15.0,.83],[8.4,15.0,.86],
+  [-9.0,-4.0,.84],[9.3,-2.0,.88],[-7.8,33.0,.78],[7.5,35.0,.8]
+ ];
+ for(const [x,z,scale] of trees){
+  const side=Math.sign(x)||1;
+  treeTint=random()*.13;
+  branch(new Vector3(x,-1,z),new Vector3(-side*(.12+random()*.1),1,(random()-.5)*.12).normalize(),(6.2+random()*1.3)*scale,(.42+random()*.14)*scale,4);
  }
  function meshFrom(name,data,foliage){
   const mesh=new Mesh(name,scene),vd=new VertexData();
@@ -177,5 +183,5 @@ export function createGinkgoScene(engine) {
  const leafMaterial=meshFrom('fan-shaped ginkgo leaves',leaves,1);
  leafMaterial.setTexture('leafTexture',texture);
  leafMaterial.setTexture('barkTexture',barkTexture);
- return {scene,update(time,look){leafMaterial.setFloat('time',time);camera.setTarget(new Vector3(look.x*8,14+look.y*7,6));}};
+ return {scene,update(time,look){leafMaterial.setFloat('time',time);camera.setTarget(new Vector3(look.x*7,18+look.y*6,4));}};
 }
