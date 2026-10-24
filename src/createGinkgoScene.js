@@ -19,7 +19,17 @@ void main(){
  vec3 p=position;
  float canopy=clamp((p.y-7.)/10.,0.,1.);
  float sway=sin(time*.68+p.x*.36+p.z*.22)*.055+sin(time*1.28+p.y*.8+p.z*.8)*.035;
- p.x+=sway*foliage*canopy; p.z+=sway*.55*foliage*canopy;
+ if(foliage>1.5){
+   float phase=color.a;
+   float descent=fract(time*(.038+phase*.014)+phase);
+   p.y-=descent*12.;
+   p.x+=sin(time*.72+phase*29.+p.y*.2)*(.20+descent*.38);
+   p.z+=cos(time*.55+phase*23.)*.24;
+   p.x+=sin(time*2.1+phase*37.)*(uv.y-.5)*.16;
+   p.y+=sin(time*2.5+phase*31.)*(uv.x-.5)*.11;
+ }else{
+   p.x+=sway*foliage*canopy; p.z+=sway*.55*foliage*canopy;
+ }
  vPosition=p;vNormal=normal;vColor=color;vUV=uv;
  gl_Position=worldViewProjection*vec4(p,1.);
 }`;
@@ -92,6 +102,7 @@ export function createGinkgoScene(engine) {
  const density=(engine.getRenderingCanvas()?.clientWidth||engine.getRenderWidth())<700?.46:1;
  let treeTint=0;
  const branches={positions:[],indices:[],colors:[],uvs:[]}, leaves={positions:[],indices:[],colors:[],uvs:[]};
+ const fallingLeaves={positions:[],indices:[],colors:[],uvs:[]};
  function tube(a,b,r0,r1,initial,sides=10){
   const base=branches.positions.length/3, rings=r0<.025?3:7;
   const control=a.add(initial.scale(Vector3.Distance(a,b)*.51));
@@ -112,35 +123,35 @@ export function createGinkgoScene(engine) {
    branches.indices.push(o+i,o+j,o+sides+i,o+j,o+sides+j,o+sides+i);
   }
  }
- function leaf(p,size){
+ function leaf(p,size,target=leaves,phase=1){
   const n=new Vector3(random()-.5,random()*.8-.1,random()-.5).normalize();
   const u=Vector3.Cross(n,Vector3.Up()).normalize(),v=Vector3.Cross(u,n).normalize();
-  const base=leaves.positions.length/3;
+  const base=target.positions.length/3;
   const shade=.78+random()*.32;
   const rgb=[shade*(.98+random()*.13),shade*(.88+treeTint),shade*(.61+random()*.20)];
   const width=size*1.9,height=size*1.52;
   const corners=[[-1,0,0,1],[1,0,1,1],[-1,1,0,0],[1,1,1,0]];
   for(const [x,y,uvX,uvY] of corners){
    const q=p.add(u.scale(x*width*.5)).add(v.scale(y*height)).add(n.scale(Math.sin(y*Math.PI)*size*.08));
-   leaves.positions.push(q.x,q.y,q.z);leaves.uvs.push(uvX,uvY);
-   leaves.colors.push(...rgb,1);
+   target.positions.push(q.x,q.y,q.z);target.uvs.push(uvX,uvY);
+   target.colors.push(...rgb,phase);
   }
-  leaves.indices.push(base,base+1,base+2,base+1,base+3,base+2);
+  target.indices.push(base,base+1,base+2,base+1,base+3,base+2);
  }
- function branch(a,dir,length,radius,depth,initial=dir){
-  const b=a.add(dir.scale(length)); tube(a,b,radius,depth===0?.002:radius*.57,initial);
+ function branch(a,dir,length,radius,depth,side,initial=dir){
+  const b=a.add(dir.scale(length)); tube(a,b,radius,depth===0?.002:radius*.42,initial);
   if(depth<=1){
-   const twigCount=Math.round((depth===0?8:4)*density);
+   const twigCount=Math.round((depth===0?9:5)*density);
    for(let k=0;k<twigCount;k++){
     const origin=Vector3.Lerp(a,b,.24+random()*.76);
     const direction=dir.scale(.15).add(new Vector3(random()-.5,.1+random()*.45,random()-.5)).normalize();
     const end=origin.add(direction.scale(.5+random()*.5));
     tube(origin,end,.012,.002,direction,5);
-    const leafCount=Math.round((depth===0?13:8)*density);
+    const leafCount=Math.round((depth===0?16:10)*density);
     for(let j=0;j<leafCount;j++){
      const anchor=Vector3.Lerp(origin,end,.18+random()*.85);
-     const p=anchor.add(new Vector3((random()-.5)*.24,(random()-.5)*.24,(random()-.5)*.24));
-     leaf(p,.11+random()*.105);
+     const p=anchor.add(new Vector3((random()-.5)*.42,(random()-.5)*.36,(random()-.5)*.42));
+     leaf(p,.125+random()*.11);
     }
    }
   }
@@ -149,17 +160,31 @@ export function createGinkgoScene(engine) {
   for(let k=0;k<count;k++){
    const angle=random()*Math.PI*2;
    const spread=depth===4?.65:.85;
-   const child=dir.scale(.65).add(new Vector3(Math.cos(angle)*spread,.18+random()*.35,Math.sin(angle)*spread)).normalize();
+   const inward=depth===4&&k<2?-side*(.75+random()*.35):depth===3?-side*.16:0;
+   const child=dir.scale(.65).add(new Vector3(Math.cos(angle)*spread+inward,.18+random()*.35,Math.sin(angle)*spread)).normalize();
    const start=Vector3.Lerp(a,b,k===0?1:.72+random()*.28);
-   branch(start,child,length*(.56+random()*.15),radius*(k===0?.57:.38),depth-1,dir);
+   branch(start,child,length*(.56+random()*.15),radius*(k===0?.42:.28),depth-1,side,dir);
   }
  }
- // Two evenly spaced rows recede toward the center, leaving a gap in the canopy.
+ // Two rows of crowns meet above the viewer, like the photographed ginkgo avenue.
  for(let row=0;row<8;row++) for(const side of [-1,1]){
   const x=side*(4.2+random()*.65),z=-7+row*7.1+(random()-.5)*1.1;
   const scale=(1.12-row*.026)*(row===0&&side===1?1.07:1);
   treeTint=random()*.13;
-  branch(new Vector3(x,-1,z),new Vector3(-side*(.12+random()*.1),1,(random()-.5)*.12).normalize(),(6.2+random()*1.3)*scale,(.42+random()*.14)*scale,4);
+  const root=new Vector3(x,-1,z);
+  const trunkDirection=new Vector3(-side*(.12+random()*.1),1,(random()-.5)*.12).normalize();
+  const trunkLength=(6.2+random()*1.3)*scale;
+  branch(root,trunkDirection,trunkLength,(.42+random()*.14)*scale,4,side);
+  if(row===1||row===2){
+   // Lower limbs connect the nearby crowns without making a flat leaf ceiling.
+   const reach=new Vector3(-side*(.78+random()*.18),.58,.25+random()*.3).normalize();
+   branch(root.add(trunkDirection.scale(trunkLength*.83)),reach,4.2*scale,.13*scale,3,side);
+  }
+ }
+ // A handful of independent leaves drift through the open space below the crowns.
+ for(let i=0;i<(density<1?24:62);i++){
+  treeTint=random()*.1;
+  leaf(new Vector3((random()-.5)*7,11+random()*4,-1+random()*28),.15+random()*.09,fallingLeaves,random());
  }
  function meshFrom(name,data,foliage){
   const mesh=new Mesh(name,scene),vd=new VertexData();
@@ -179,5 +204,8 @@ export function createGinkgoScene(engine) {
  const leafMaterial=meshFrom('fan-shaped ginkgo leaves',leaves,1);
  leafMaterial.setTexture('leafTexture',texture);
  leafMaterial.setTexture('barkTexture',barkTexture);
- return {scene,update(time,look){leafMaterial.setFloat('time',time);camera.setTarget(new Vector3(look.x*7,15.5+look.y*6,8));}};
+ const fallingMaterial=meshFrom('drifting ginkgo leaves',fallingLeaves,2);
+ fallingMaterial.setTexture('leafTexture',texture);
+ fallingMaterial.setTexture('barkTexture',barkTexture);
+ return {scene,update(time,look){leafMaterial.setFloat('time',time);fallingMaterial.setFloat('time',time);camera.setTarget(new Vector3(look.x*7,15.5+look.y*6,8));}};
 }
