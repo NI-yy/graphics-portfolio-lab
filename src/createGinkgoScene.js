@@ -91,7 +91,7 @@ export function createGinkgoScene(engine) {
  const scene=new Scene(engine);
  scene.clearColor=new Color4(.55,.7,.8,1);
  const camera=new FreeCamera('under the ginkgo trees',new Vector3(0,1.8,-1),scene);
- camera.fov=1.46; camera.minZ=.1; camera.maxZ=250;
+ camera.fov=1.08; camera.minZ=.1; camera.maxZ=250;
  camera.setTarget(new Vector3(0,15.5,8));
  new FxaaPostProcess('ginkgo edge smoothing',1,camera,Texture.BILINEAR_SAMPLINGMODE,engine);
  const sky=MeshBuilder.CreateSphere('autumn sky',{diameter:180,segments:24,sideOrientation:Mesh.BACKSIDE},scene);
