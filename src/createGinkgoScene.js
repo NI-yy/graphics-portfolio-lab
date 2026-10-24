@@ -1,4 +1,4 @@
-import { Scene, FreeCamera, Vector3, Color4, Mesh, MeshBuilder, VertexData, ShaderMaterial, Effect, Texture } from '@babylonjs/core';
+import { Scene, FreeCamera, Vector3, Color4, Mesh, MeshBuilder, VertexData, ShaderMaterial, Effect, Texture, FxaaPostProcess } from '@babylonjs/core';
 import leafImage from './img/ginkgo-leaf.png';
 import barkImage from './img/ginkgo-bark.png';
 
@@ -82,13 +82,14 @@ export function createGinkgoScene(engine) {
  scene.clearColor=new Color4(.55,.7,.8,1);
  const camera=new FreeCamera('under the ginkgo trees',new Vector3(0,1.8,-1),scene);
  camera.fov=1.46; camera.minZ=.1; camera.maxZ=250;
- camera.setTarget(new Vector3(0,18,4));
+ camera.setTarget(new Vector3(0,15.5,8));
+ new FxaaPostProcess('ginkgo edge smoothing',1,camera,Texture.BILINEAR_SAMPLINGMODE,engine);
  const sky=MeshBuilder.CreateSphere('autumn sky',{diameter:180,segments:24,sideOrientation:Mesh.BACKSIDE},scene);
  const skyMat=new ShaderMaterial('sky',scene,'canopySky',{attributes:['position'],uniforms:['worldViewProjection']});
  skyMat.backFaceCulling=false; sky.material=skyMat;
  let seed=417;
  const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
- const density=engine.getRenderWidth()<700?.46:1;
+ const density=(engine.getRenderingCanvas()?.clientWidth||engine.getRenderWidth())<700?.46:1;
  let treeTint=0;
  const branches={positions:[],indices:[],colors:[],uvs:[]}, leaves={positions:[],indices:[],colors:[],uvs:[]};
  function tube(a,b,r0,r1,initial,sides=10){
@@ -153,15 +154,10 @@ export function createGinkgoScene(engine) {
    branch(start,child,length*(.56+random()*.15),radius*(k===0?.57:.38),depth-1,dir);
   }
  }
- // Overlapping crowns frame a patch of sky, as in the upward-looking photo.
- const trees=[
-  [-3.0,-3.5,1.15],[-5.2,2.0,1.0],[-5.8,10.0,.94],[-4.2,18.0,.92],[-6.0,27.0,.9],
-  [3.5,-4.0,1.2],[4.2,2.5,1.13],[5.4,9.0,1.06],[3.8,15.5,1.0],[5.7,24.0,.94],
-  [-1.4,23.0,.87],[1.3,29.0,.85],[-8.2,15.0,.83],[8.4,15.0,.86],
-  [-9.0,-4.0,.84],[9.3,-2.0,.88],[-7.8,33.0,.78],[7.5,35.0,.8]
- ];
- for(const [x,z,scale] of trees){
-  const side=Math.sign(x)||1;
+ // Two evenly spaced rows recede toward the center, leaving a gap in the canopy.
+ for(let row=0;row<8;row++) for(const side of [-1,1]){
+  const x=side*(4.2+random()*.65),z=-7+row*7.1+(random()-.5)*1.1;
+  const scale=(1.12-row*.026)*(row===0&&side===1?1.07:1);
   treeTint=random()*.13;
   branch(new Vector3(x,-1,z),new Vector3(-side*(.12+random()*.1),1,(random()-.5)*.12).normalize(),(6.2+random()*1.3)*scale,(.42+random()*.14)*scale,4);
  }
@@ -173,7 +169,7 @@ export function createGinkgoScene(engine) {
   mat.backFaceCulling=false;mat.setFloat('foliage',foliage);mat.setFloat('time',0);mesh.material=mat;
   return mat;
  }
- const texture=new Texture(leafImage,scene,false,false,Texture.BILINEAR_SAMPLINGMODE);
+ const texture=new Texture(leafImage,scene,false,false,Texture.TRILINEAR_SAMPLINGMODE);
  const barkTexture=new Texture(barkImage,scene,false,false,Texture.TRILINEAR_SAMPLINGMODE);
  barkTexture.wrapU=Texture.WRAP_ADDRESSMODE;
  barkTexture.wrapV=Texture.WRAP_ADDRESSMODE;
@@ -183,5 +179,5 @@ export function createGinkgoScene(engine) {
  const leafMaterial=meshFrom('fan-shaped ginkgo leaves',leaves,1);
  leafMaterial.setTexture('leafTexture',texture);
  leafMaterial.setTexture('barkTexture',barkTexture);
- return {scene,update(time,look){leafMaterial.setFloat('time',time);camera.setTarget(new Vector3(look.x*7,18+look.y*6,4));}};
+ return {scene,update(time,look){leafMaterial.setFloat('time',time);camera.setTarget(new Vector3(look.x*7,15.5+look.y*6,8));}};
 }

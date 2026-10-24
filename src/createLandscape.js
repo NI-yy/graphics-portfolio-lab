@@ -123,7 +123,10 @@ void main(void){
 
 export function createLandscape(canvas) {
   const engine=new Engine(canvas,true,{preserveDrawingBuffer:true,stencil:false});
-  engine.setHardwareScalingLevel(Math.max(1,Math.min(2,window.devicePixelRatio/1.3)));
+  const hardwareScale=(mode)=>mode==='ginkgo'
+    ?Math.max(.8,Math.min(2,window.devicePixelRatio/1.5))
+    :Math.max(1,Math.min(2,window.devicePixelRatio/1.3));
+  engine.setHardwareScalingLevel(hardwareScale('ginkgo'));
   const scene=new Scene(engine);
   scene.clearColor=new Color4(0,0,0,1);
   const camera=new FreeCamera('ray tracing camera',new Vector3(0,0,-1),scene);
@@ -144,7 +147,7 @@ export function createLandscape(canvas) {
   const observer=new IntersectionObserver(([entry])=>{active=entry.isIntersecting;},{threshold:0.01});
   observer.observe(canvas);
   const onVisibility=()=>{active=!document.hidden;};
-  const onResize=()=>engine.resize();
+  const onResize=()=>{engine.setHardwareScalingLevel(hardwareScale(selectedMode));engine.resize();};
   const onPointerDown=(event)=>{canvas.setPointerCapture(event.pointerId);pointer={x:event.clientX,y:event.clientY};};
   const onPointerMove=(event)=>{
     if(!pointer)return;
@@ -169,7 +172,7 @@ export function createLandscape(canvas) {
     }else scene.render();
   });
   return {
-    setMode(nextMode){selectedMode=nextMode;look.x=0;look.y=0;},
+    setMode(nextMode){selectedMode=nextMode;look.x=0;look.y=0;onResize();},
     setPaused(value){paused=value;},
     dispose(){
       resizeObserver.disconnect();observer.disconnect();
