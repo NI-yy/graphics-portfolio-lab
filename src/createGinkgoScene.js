@@ -226,6 +226,7 @@ export function createGinkgoScene(engine) {
   }
  }
  // Two rows of crowns meet above the viewer, like the photographed ginkgo avenue.
+ const trunks=[];
  for(let row=0;row<8;row++) for(const side of [-1,1]){
   const x=side*4.5,z=-7+row*7.1;
   const scale=(1.12-row*.026)*(row===0&&side===1?1.07:1);
@@ -233,7 +234,23 @@ export function createGinkgoScene(engine) {
   const root=new Vector3(x,-1,z);
   const trunkDirection=new Vector3(-side*(.12+random()*.1),1,(random()-.5)*.12).normalize();
   const trunkLength=(6.2+random()*1.3)*scale;
-  branch(root,trunkDirection,trunkLength,(.42+random()*.14)*scale,4,side);
+  const radius=(.42+random()*.14)*scale;
+  branch(root,trunkDirection,trunkLength,radius,4,side);
+  trunks.push({root,trunkDirection,trunkLength,side,radius,tint:treeTint});
+ }
+ // Three smaller scaffold branches fill the otherwise bare middle of each upper trunk.
+ for(const {root,trunkDirection,trunkLength,side,radius,tint} of trunks){
+  treeTint=tint;
+  for(let k=0;k<3;k++){
+   const start=root.add(trunkDirection.scale(trunkLength*(.62+k*.11)));
+   const radial=[
+    new Vector3(side*.9,.56,-.12),
+    new Vector3(-side*.85,.66,.18),
+    new Vector3(-side*.32,.7,-.75)
+   ][k];
+   const direction=radial.add(new Vector3((random()-.5)*.12,random()*.08,(random()-.5)*.12)).normalize();
+   branch(start,direction,1.32+random()*.2,radius*.24,1,side,2.5);
+  }
  }
  // A handful of independent leaves drift through the open space below the crowns.
  for(let i=0;i<(density<1?24:62);i++){
