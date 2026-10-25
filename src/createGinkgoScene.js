@@ -139,7 +139,8 @@ export function createGinkgoScene(engine) {
   target.indices.push(base,base+1,base+2,base+1,base+3,base+2);
  }
  function branch(a,dir,length,radius,depth,side,initial=dir){
-  const b=a.add(dir.scale(length)); tube(a,b,radius,depth===0?.002:radius*.42,initial);
+  const b=a.add(dir.scale(length));
+  tube(a,b,depth===4?radius*2:radius,depth===0?.002:radius*.42,initial);
   if(depth<=1){
    const twigCount=Math.round((depth===0?9:5)*density);
    for(let k=0;k<twigCount;k++){
@@ -168,7 +169,7 @@ export function createGinkgoScene(engine) {
  }
  // Two rows of crowns meet above the viewer, like the photographed ginkgo avenue.
  for(let row=0;row<8;row++) for(const side of [-1,1]){
-  const x=side*(4.2+random()*.65),z=-7+row*7.1+(random()-.5)*1.1;
+  const x=side*4.5,z=-7+row*7.1;
   const scale=(1.12-row*.026)*(row===0&&side===1?1.07:1);
   treeTint=random()*.13;
   const root=new Vector3(x,-1,z);
