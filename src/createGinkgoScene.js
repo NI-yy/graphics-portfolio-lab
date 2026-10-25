@@ -134,10 +134,12 @@ export function createGinkgoScene(engine) {
   const base=target.positions.length/3;
   const shade=.78+random()*.32;
   const rgb=[shade*(.98+random()*.13),shade*(.88+treeTint),shade*(.61+random()*.20)];
-  const width=size*1.9,height=size*1.52;
+  const variation=Math.abs(Math.sin(p.x*127.1+p.y*311.7+p.z*74.7)*43758.5453)%1;
+  const leafSize=size*(.7+variation*.6);
+  const width=leafSize*1.9,height=leafSize*1.52;
   const corners=[[-1,0,0,1],[1,0,1,1],[-1,1,0,0],[1,1,1,0]];
   for(const [x,y,uvX,uvY] of corners){
-   const q=p.add(u.scale(x*width*.5)).add(v.scale(y*height)).add(n.scale(Math.sin(y*Math.PI)*size*.08));
+   const q=p.add(u.scale(x*width*.5)).add(v.scale(y*height)).add(n.scale(Math.sin(y*Math.PI)*leafSize*.08));
    target.positions.push(q.x,q.y,q.z);target.uvs.push(uvX,uvY);
    target.colors.push(...rgb,phase);
   }
