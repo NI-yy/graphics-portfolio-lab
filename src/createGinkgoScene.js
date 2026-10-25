@@ -143,9 +143,41 @@ export function createGinkgoScene(engine) {
   }
   target.indices.push(base,base+1,base+2,base+1,base+3,base+2);
  }
+ function intermediateShoots(a,b,dir,radius,depth){
+  const lateral=Vector3.Cross(dir,Math.abs(dir.y)>.9?Vector3.Right():Vector3.Up()).normalize();
+  const binormal=Vector3.Cross(dir,lateral).normalize();
+  const count=depth===3?3:2;
+  for(let k=0;k<count;k++){
+   const sign=k%2===0?1:-1;
+   const origin=Vector3.Lerp(a,b,depth===3?.2+k*.25+random()*.05:.3+k*.33+random()*.06);
+   const direction=dir.scale(.5)
+    .add(lateral.scale(sign*(.63+random()*.18)))
+    .add(binormal.scale((random()-.5)*.24))
+    .add(new Vector3(0,.25,0));
+   direction.y=Math.max(direction.y,.16);
+   direction.normalize();
+   const length=depth===3?1.05+random()*.25:.78+random()*.2;
+   const end=origin.add(direction.scale(length));
+   tube(origin,end,Math.max(.027,radius*.3),.007,7);
+   for(let j=0;j<(depth===3?3:2);j++){
+    const twigBase=Vector3.Lerp(origin,end,.2+random()*.75);
+    const twigDirection=direction.scale(.38)
+     .add(lateral.scale(sign*(random()-.5)*.6))
+     .add(new Vector3(0,.15+random()*.2,(random()-.5)*.2)).normalize();
+    const twigEnd=twigBase.add(twigDirection.scale(.28+random()*.22));
+    tube(twigBase,twigEnd,.008,.001,5);
+    for(let n=0;n<Math.round(7*density);n++){
+     const p=Vector3.Lerp(twigBase,twigEnd,random())
+      .add(new Vector3((random()-.5)*.2,(random()-.5)*.16,(random()-.5)*.2));
+     leaf(p,.11+random()*.07);
+    }
+   }
+  }
+ }
  function branch(a,dir,length,radius,depth,side,remainingReach=maxLimbReach){
   const b=a.add(dir.scale(length));
   tube(a,b,depth===4?radius*2:radius,depth===0?.002:radius*.42);
+  if(depth===3||depth===2)intermediateShoots(a,b,dir,radius,depth);
   if(depth<=1){
    const twigCount=Math.round((depth===0?9:5)*density);
    for(let k=0;k<twigCount;k++){
