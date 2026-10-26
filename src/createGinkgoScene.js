@@ -212,7 +212,7 @@ export function createGinkgoScene(engine) {
    }else if(depth===4){
     // Three scaffold limbs leave the upper trunk at separate heights and azimuths.
     const angle=angleOffset+(k-1)*Math.PI*2/3;
-    child=new Vector3(Math.cos(angle)*.85,.5+random()*.22,Math.sin(angle)*.85).normalize();
+    child=new Vector3(Math.cos(angle)*.85,.4+random()*.18,Math.sin(angle)*.85).normalize();
    }else{
     // Later forks keep growing roughly along their parent instead of turning back.
     const angle=forkAngle+(k-1)*Math.PI*2/(count-1)+(random()-.5)*.3;
@@ -220,8 +220,8 @@ export function createGinkgoScene(engine) {
     child=dir.scale(.86)
      .add(perpendicular.scale(Math.cos(angle)*spread))
      .add(binormal.scale(Math.sin(angle)*spread))
-     .add(new Vector3(0,.12,0));
-    child.y=Math.max(child.y,.16);
+     .add(new Vector3(0,.03,0));
+    child.y=Math.max(child.y,.08);
     child.normalize();
    }
    const start=k===0?b:Vector3.Lerp(a,b,
@@ -250,9 +250,9 @@ export function createGinkgoScene(engine) {
   for(let k=0;k<3;k++){
    const start=root.add(trunkDirection.scale(trunkLength*(.62+k*.11)));
    const radial=[
-    new Vector3(side*.9,.56,-.12),
-    new Vector3(-side*.85,.66,.18),
-    new Vector3(-side*.32,.7,-.75)
+    new Vector3(side*.9,.46,-.12),
+    new Vector3(-side*.85,.56,.18),
+    new Vector3(-side*.32,.6,-.75)
    ][k];
    const direction=radial.add(new Vector3((random()-.5)*.12,random()*.08,(random()-.5)*.12)).normalize();
    branch(start,direction,1.32+random()*.2,radius*.24,1,side,2.5);
