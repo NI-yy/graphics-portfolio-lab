@@ -114,12 +114,28 @@ export function createGinkgoScene(engine) {
  function tube(a,b,r0,r1,sides=10){
   const base=branches.positions.length/3, rings=r0<.025?3:7;
   const axis=b.subtract(a),distance=axis.length();
-  const sag=(1-Math.abs(axis.y)/distance)*Math.min(distance,5)*.04;
-  const control=Vector3.Lerp(a,b,.5).add(new Vector3(0,-sag,0));
+  const direction=axis.scale(1/distance);
+  const lateral=Vector3.Cross(direction,Math.abs(direction.y)>.96?Vector3.Right():Vector3.Up()).normalize();
+  const binormal=Vector3.Cross(direction,lateral).normalize();
+  const bendSeed=a.x*12.99+a.y*78.23+a.z*37.72+b.x*43.17+b.y*11.13+b.z*91.19;
+  const angle=(Math.abs(Math.sin(bendSeed)*43758.55)%1)*Math.PI*2;
+  const variation=Math.abs(Math.sin(bendSeed*1.37)*24634.63)%1;
+  const bendAmount=Math.min(distance*.035,.12)*(.65+variation*.35)*(r0>.4?.45:r0<.025?.35:1);
+  const sag=(1-Math.abs(direction.y))*Math.min(distance,5)*.02;
+  const bend=lateral.scale(Math.cos(angle)*bendAmount)
+   .add(binormal.scale(Math.sin(angle)*bendAmount))
+   .add(new Vector3(0,-sag,0));
+  const skew=(variation-.5)*.6;
+  const curve=f=>{
+   const envelope=16*f*f*(1-f)*(1-f);
+   return a.add(axis.scale(f)).add(bend.scale(envelope*(1+skew*(2*f-1))));
+  };
   for(let ring=0;ring<rings;ring++) for(let i=0;i<sides;i++){
    const f=ring/(rings-1),t=i/sides*Math.PI*2;
-   const center=a.scale((1-f)*(1-f)).add(control.scale(2*f*(1-f))).add(b.scale(f*f));
-   const tangent=control.subtract(a).scale(1-f).add(b.subtract(control).scale(f)).normalize();
+   const envelope=16*f*f*(1-f)*(1-f);
+   const slope=32*f*(1-f)*(1-2*f)*(1+skew*(2*f-1))+envelope*2*skew;
+   const center=curve(f);
+   const tangent=axis.add(bend.scale(slope)).normalize();
    const u=Vector3.Cross(tangent,Math.abs(tangent.y)>.96?Vector3.Right():Vector3.Up()).normalize();
    const v=Vector3.Cross(tangent,u).normalize();
    const r=(r0+(r1-r0)*f)*(1+Math.sin(i*3.7+f*4.)*.035);
@@ -132,6 +148,7 @@ export function createGinkgoScene(engine) {
    const j=(i+1)%sides,o=base+ring*sides;
    branches.indices.push(o+i,o+j,o+sides+i,o+j,o+sides+j,o+sides+i);
   }
+  return curve;
  }
  function leaf(p,size,target=leaves,phase=1){
   const n=new Vector3(random()-.5,random()*.8-.1,random()-.5).normalize();
@@ -152,13 +169,13 @@ export function createGinkgoScene(engine) {
   }
   target.indices.push(base,base+1,base+2,base+1,base+3,base+2);
  }
- function intermediateShoots(a,b,dir,radius,depth){
+ function intermediateShoots(dir,radius,depth,curve){
   const lateral=Vector3.Cross(dir,Math.abs(dir.y)>.9?Vector3.Right():Vector3.Up()).normalize();
   const binormal=Vector3.Cross(dir,lateral).normalize();
   const count=depth===3?3:2;
   for(let k=0;k<count;k++){
    const sign=k%2===0?1:-1;
-   const origin=Vector3.Lerp(a,b,depth===3?.2+k*.25+random()*.05:.3+k*.33+random()*.06);
+   const origin=curve(depth===3?.2+k*.25+random()*.05:.3+k*.33+random()*.06);
    const direction=dir.scale(.5)
     .add(lateral.scale(sign*(.63+random()*.18)))
     .add(binormal.scale((random()-.5)*.24))
@@ -167,16 +184,16 @@ export function createGinkgoScene(engine) {
    direction.normalize();
    const length=depth===3?1.05+random()*.25:.78+random()*.2;
    const end=origin.add(direction.scale(length));
-   tube(origin,end,Math.max(minBranchRadius,radius*.3),.012,7);
+   const shootCurve=tube(origin,end,Math.max(minBranchRadius,radius*.3),.012,7);
    for(let j=0;j<(depth===3?3:2);j++){
-    const twigBase=Vector3.Lerp(origin,end,.2+random()*.75);
+    const twigBase=shootCurve(.2+random()*.75);
     const twigDirection=direction.scale(.38)
      .add(lateral.scale(sign*(random()-.5)*.6))
      .add(new Vector3(0,.15+random()*.2,(random()-.5)*.2)).normalize();
     const twigEnd=twigBase.add(twigDirection.scale(.28+random()*.22));
-    tube(twigBase,twigEnd,.008,.004,5);
+    const twigCurve=tube(twigBase,twigEnd,.008,.004,5);
     for(let n=0;n<Math.round(7*density);n++){
-     const p=Vector3.Lerp(twigBase,twigEnd,random())
+     const p=twigCurve(random())
       .add(new Vector3((random()-.5)*.2,(random()-.5)*.16,(random()-.5)*.2));
      leaf(p,.11+random()*.07);
     }
@@ -187,26 +204,26 @@ export function createGinkgoScene(engine) {
   if(depth<4&&radius<minBranchRadius)return;
   const b=a.add(dir.scale(length));
   const tipRatio=depth===4?.5:depth===3?.66:depth===2?.72:.75;
-  tube(a,b,depth===4?radius*2:radius,depth===0?terminalBranchRadius:radius*tipRatio);
-  if(depth===3||depth===2)intermediateShoots(a,b,dir,radius,depth);
+  const curve=tube(a,b,depth===4?radius*2:radius,depth===0?terminalBranchRadius:radius*tipRatio);
+  if(depth===3||depth===2)intermediateShoots(dir,radius,depth,curve);
   if(depth<=1){
    const twigCount=Math.round((depth===0?9:5)*density);
    for(let k=0;k<twigCount;k++){
-    const origin=Vector3.Lerp(a,b,.24+random()*.76);
+    const origin=curve(.24+random()*.76);
     const direction=dir.scale(.15).add(new Vector3(random()-.5,.1+random()*.45,random()-.5)).normalize();
     const twigRadius=Math.min(.014,Math.max(.008,radius*.16));
     const twigLength=Math.min(.5+random()*.5,twigRadius*55);
     const end=origin.add(direction.scale(twigLength));
-    tube(origin,end,twigRadius,.004,5);
+    const twigCurve=tube(origin,end,twigRadius,.004,5);
     const leafCount=Math.round((depth===0?16:10)*density);
     for(let j=0;j<leafCount;j++){
-     const anchor=Vector3.Lerp(origin,end,.18+random()*.85);
+     const anchor=twigCurve(.18+random()*.85);
      const p=anchor.add(new Vector3((random()-.5)*.42,(random()-.5)*.36,(random()-.5)*.42));
      leaf(p,.125+random()*.11);
     }
    }
   }
-  if(depth===0)return;
+  if(depth===0)return curve;
   const count=depth>=3?4:2;
   const angleOffset=(side===1?Math.PI:0)+(random()-.5)*.4;
   const forkAngle=random()*Math.PI*2;
@@ -232,7 +249,7 @@ export function createGinkgoScene(engine) {
     child.y=Math.max(child.y,.08);
     child.normalize();
    }
-   const start=k===0?b:Vector3.Lerp(a,b,
+   const start=k===0?b:curve(
     depth===4?.55+random()*.36:depth===3?.38+(k-1)*.2+random()*.08:.5+random()*.4);
    const lengthRatio=depth===4?.47+random()*.08:
     depth===3?.64+random()*.08:depth===2?.72+random()*.1:1.35+random()*.15;
@@ -241,6 +258,7 @@ export function createGinkgoScene(engine) {
    if(childLength<.2||childRadius<minBranchRadius)continue;
    branch(start,child,childLength,childRadius,depth-1,side,remainingReach-childLength);
   }
+  return curve;
  }
  // Two rows of crowns meet above the viewer, like the photographed ginkgo avenue.
  const trunks=[];
@@ -252,14 +270,14 @@ export function createGinkgoScene(engine) {
   const trunkDirection=new Vector3(-side*(.12+random()*.1),1,(random()-.5)*.12).normalize();
   const trunkLength=(6.2+random()*1.3)*scale;
   const radius=(.42+random()*.14)*scale;
-  branch(root,trunkDirection,trunkLength,radius,4,side);
-  trunks.push({root,trunkDirection,trunkLength,side,radius,tint:treeTint});
+  const curve=branch(root,trunkDirection,trunkLength,radius,4,side);
+  trunks.push({side,radius,tint:treeTint,curve});
  }
  // Three smaller scaffold branches fill the otherwise bare middle of each upper trunk.
- for(const {root,trunkDirection,trunkLength,side,radius,tint} of trunks){
+ for(const {side,radius,tint,curve} of trunks){
   treeTint=tint;
   for(let k=0;k<3;k++){
-   const start=root.add(trunkDirection.scale(trunkLength*(.62+k*.11)));
+   const start=curve(.62+k*.11);
    const radial=[
     new Vector3(side*.9,.46,-.12),
     new Vector3(-side*.85,.56,.18),
