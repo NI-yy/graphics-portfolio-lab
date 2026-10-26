@@ -102,8 +102,8 @@ export function createGinkgoScene(engine) {
  const density=(engine.getRenderingCanvas()?.clientWidth||engine.getRenderWidth())<700?.46:1;
  const canopyThinning=.05;
  // Scene-unit limits for each woody limb, excluding the main trunk.
- const maxLimbReach=5;
- const maxSegmentLength=[.6,.8,1.25,2.6]; // Indexed by the child's remaining depth.
+ const maxLimbReach=6.2;
+ const maxSegmentLength=[.65,.9,1.5,3.15]; // Indexed by the child's remaining depth.
  let treeTint=0;
  const branches={positions:[],indices:[],colors:[],uvs:[]}, leaves={positions:[],indices:[],colors:[],uvs:[]};
  const fallingLeaves={positions:[],indices:[],colors:[],uvs:[]};
@@ -234,7 +234,7 @@ export function createGinkgoScene(engine) {
  // Two rows of crowns meet above the viewer, like the photographed ginkgo avenue.
  const trunks=[];
  for(let row=0;row<8;row++) for(const side of [-1,1]){
-  const x=side*4.5,z=-7+row*7.1;
+  const x=side*5.8,z=-7+row*7.1;
   const scale=(1.12-row*.026)*(row===0&&side===1?1.07:1);
   treeTint=random()*.13;
   const root=new Vector3(x,-1,z);
