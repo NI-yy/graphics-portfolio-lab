@@ -196,7 +196,7 @@ export function createGinkgoScene(engine) {
    }
   }
   if(depth===0)return;
-  const count=depth===4?4:3;
+  const count=depth>=3?4:3;
   const angleOffset=(side===1?Math.PI:0)+(random()-.5)*.4;
   const forkAngle=random()*Math.PI*2;
   const perpendicular=Vector3.Cross(dir,Math.abs(dir.y)>.9?Vector3.Right():Vector3.Up()).normalize();
@@ -212,7 +212,7 @@ export function createGinkgoScene(engine) {
     child=new Vector3(Math.cos(angle)*.85,.5+random()*.22,Math.sin(angle)*.85).normalize();
    }else{
     // Later forks keep growing roughly along their parent instead of turning back.
-    const angle=forkAngle+(k-1)*Math.PI+(random()-.5)*.3;
+    const angle=forkAngle+(k-1)*Math.PI*2/(count-1)+(random()-.5)*.3;
     const spread=depth===3?.48:depth===2?.38:.3;
     child=dir.scale(.86)
      .add(perpendicular.scale(Math.cos(angle)*spread))
@@ -221,7 +221,8 @@ export function createGinkgoScene(engine) {
     child.y=Math.max(child.y,.16);
     child.normalize();
    }
-   const start=k===0?b:Vector3.Lerp(a,b,depth===4?.55+random()*.36:.5+random()*.4);
+   const start=k===0?b:Vector3.Lerp(a,b,
+    depth===4?.55+random()*.36:depth===3?.38+(k-1)*.2+random()*.08:.5+random()*.4);
    const lengthRatio=depth===4?.47+random()*.08:.54+random()*.09;
    const childLength=Math.min(length*lengthRatio,maxSegmentLength[depth-1],remainingReach);
    branch(start,child,childLength,radius*(k===0?.42:.28),depth-1,side,remainingReach-childLength);
