@@ -104,6 +104,10 @@ export function createGinkgoScene(engine) {
  // Scene-unit limits for each woody limb, excluding the main trunk.
  const maxLimbReach=6.6;
  const maxSegmentLength=[1.6,1.2,1.55,2.2]; // Indexed by the child's remaining depth.
+ // Stop a woody branch before a new segment starts thinner than this radius.
+ const minBranchRadius=.03;
+ const terminalBranchRadius=.014;
+ const childRadiusRatios={4:[.5,.4],3:[.66,.53],2:[.72,.6],1:[.75,.64]};
  let treeTint=0;
  const branches={positions:[],indices:[],colors:[],uvs:[]}, leaves={positions:[],indices:[],colors:[],uvs:[]};
  const fallingLeaves={positions:[],indices:[],colors:[],uvs:[]};
@@ -163,14 +167,14 @@ export function createGinkgoScene(engine) {
    direction.normalize();
    const length=depth===3?1.05+random()*.25:.78+random()*.2;
    const end=origin.add(direction.scale(length));
-   tube(origin,end,Math.max(.027,radius*.3),.007,7);
+   tube(origin,end,Math.max(minBranchRadius,radius*.3),.012,7);
    for(let j=0;j<(depth===3?3:2);j++){
     const twigBase=Vector3.Lerp(origin,end,.2+random()*.75);
     const twigDirection=direction.scale(.38)
      .add(lateral.scale(sign*(random()-.5)*.6))
      .add(new Vector3(0,.15+random()*.2,(random()-.5)*.2)).normalize();
     const twigEnd=twigBase.add(twigDirection.scale(.28+random()*.22));
-    tube(twigBase,twigEnd,.008,.001,5);
+    tube(twigBase,twigEnd,.008,.004,5);
     for(let n=0;n<Math.round(7*density);n++){
      const p=Vector3.Lerp(twigBase,twigEnd,random())
       .add(new Vector3((random()-.5)*.2,(random()-.5)*.16,(random()-.5)*.2));
@@ -180,16 +184,20 @@ export function createGinkgoScene(engine) {
   }
  }
  function branch(a,dir,length,radius,depth,side,remainingReach=maxLimbReach){
+  if(depth<4&&radius<minBranchRadius)return;
   const b=a.add(dir.scale(length));
-  tube(a,b,depth===4?radius*2:radius,depth===0?.002:radius*.42);
+  const tipRatio=depth===4?.5:depth===3?.66:depth===2?.72:.75;
+  tube(a,b,depth===4?radius*2:radius,depth===0?terminalBranchRadius:radius*tipRatio);
   if(depth===3||depth===2)intermediateShoots(a,b,dir,radius,depth);
   if(depth<=1){
    const twigCount=Math.round((depth===0?9:5)*density);
    for(let k=0;k<twigCount;k++){
     const origin=Vector3.Lerp(a,b,.24+random()*.76);
     const direction=dir.scale(.15).add(new Vector3(random()-.5,.1+random()*.45,random()-.5)).normalize();
-    const end=origin.add(direction.scale(.5+random()*.5));
-    tube(origin,end,.012,.002,5);
+    const twigRadius=Math.min(.014,Math.max(.008,radius*.16));
+    const twigLength=Math.min(.5+random()*.5,twigRadius*55);
+    const end=origin.add(direction.scale(twigLength));
+    tube(origin,end,twigRadius,.004,5);
     const leafCount=Math.round((depth===0?16:10)*density);
     for(let j=0;j<leafCount;j++){
      const anchor=Vector3.Lerp(origin,end,.18+random()*.85);
@@ -229,7 +237,9 @@ export function createGinkgoScene(engine) {
    const lengthRatio=depth===4?.47+random()*.08:
     depth===3?.64+random()*.08:depth===2?.72+random()*.1:1.35+random()*.15;
    const childLength=Math.min(length*lengthRatio,maxSegmentLength[depth-1],remainingReach);
-   branch(start,child,childLength,radius*(k===0?.42:.28),depth-1,side,remainingReach-childLength);
+   const childRadius=radius*childRadiusRatios[depth][k===0?0:1];
+   if(childLength<.2||childRadius<minBranchRadius)continue;
+   branch(start,child,childLength,childRadius,depth-1,side,remainingReach-childLength);
   }
  }
  // Two rows of crowns meet above the viewer, like the photographed ginkgo avenue.
