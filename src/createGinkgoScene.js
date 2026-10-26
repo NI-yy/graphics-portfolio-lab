@@ -102,8 +102,8 @@ export function createGinkgoScene(engine) {
  const density=(engine.getRenderingCanvas()?.clientWidth||engine.getRenderWidth())<700?.46:1;
  const canopyThinning=.05;
  // Scene-unit limits for each woody limb, excluding the main trunk.
- const maxLimbReach=6.2;
- const maxSegmentLength=[.65,.9,1.5,3.15]; // Indexed by the child's remaining depth.
+ const maxLimbReach=6.6;
+ const maxSegmentLength=[1.6,1.2,1.55,2.2]; // Indexed by the child's remaining depth.
  let treeTint=0;
  const branches={positions:[],indices:[],colors:[],uvs:[]}, leaves={positions:[],indices:[],colors:[],uvs:[]};
  const fallingLeaves={positions:[],indices:[],colors:[],uvs:[]};
@@ -199,7 +199,7 @@ export function createGinkgoScene(engine) {
    }
   }
   if(depth===0)return;
-  const count=depth>=3?4:3;
+  const count=depth>=3?4:2;
   const angleOffset=(side===1?Math.PI:0)+(random()-.5)*.4;
   const forkAngle=random()*Math.PI*2;
   const perpendicular=Vector3.Cross(dir,Math.abs(dir.y)>.9?Vector3.Right():Vector3.Up()).normalize();
@@ -226,7 +226,8 @@ export function createGinkgoScene(engine) {
    }
    const start=k===0?b:Vector3.Lerp(a,b,
     depth===4?.55+random()*.36:depth===3?.38+(k-1)*.2+random()*.08:.5+random()*.4);
-   const lengthRatio=depth===4?.47+random()*.08:.54+random()*.09;
+   const lengthRatio=depth===4?.47+random()*.08:
+    depth===3?.64+random()*.08:depth===2?.72+random()*.1:1.35+random()*.15;
    const childLength=Math.min(length*lengthRatio,maxSegmentLength[depth-1],remainingReach);
    branch(start,child,childLength,radius*(k===0?.42:.28),depth-1,side,remainingReach-childLength);
   }
@@ -255,7 +256,7 @@ export function createGinkgoScene(engine) {
     new Vector3(-side*.32,.6,-.75)
    ][k];
    const direction=radial.add(new Vector3((random()-.5)*.12,random()*.08,(random()-.5)*.12)).normalize();
-   branch(start,direction,1.32+random()*.2,radius*.24,1,side,2.5);
+   branch(start,direction,1.32+random()*.2,radius*.24,1,side,3.2);
   }
  }
  // A handful of independent leaves drift through the open space below the crowns.
