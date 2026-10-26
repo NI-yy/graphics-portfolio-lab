@@ -100,7 +100,7 @@ export function createGinkgoScene(engine) {
  let seed=417;
  const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
  const density=(engine.getRenderingCanvas()?.clientWidth||engine.getRenderWidth())<700?.46:1;
- const canopyThinning=.05;
+ const canopyThinning=.10;
  // Scene-unit limits for each woody limb, excluding the main trunk.
  const maxLimbReach=6.6;
  const maxSegmentLength=[1.6,1.2,1.55,2.2]; // Indexed by the child's remaining depth.
