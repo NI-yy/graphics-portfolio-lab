@@ -100,6 +100,7 @@ export function createGinkgoScene(engine) {
  let seed=417;
  const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
  const density=(engine.getRenderingCanvas()?.clientWidth||engine.getRenderWidth())<700?.46:1;
+ const canopyThinning=.05;
  // Scene-unit limits for each woody limb, excluding the main trunk.
  const maxLimbReach=5;
  const maxSegmentLength=[.6,.8,1.25,2.6]; // Indexed by the child's remaining depth.
@@ -134,6 +135,8 @@ export function createGinkgoScene(engine) {
   const base=target.positions.length/3;
   const shade=.78+random()*.32;
   const rgb=[shade*(.98+random()*.13),shade*(.88+treeTint),shade*(.61+random()*.20)];
+  const thinning=Math.abs(Math.sin(p.x*93.99+p.y*67.35+p.z*54.12)*43758.5453)%1;
+  if(target===leaves&&thinning<canopyThinning)return;
   const variation=Math.abs(Math.sin(p.x*127.1+p.y*311.7+p.z*74.7)*43758.5453)%1;
   const leafSize=size*(.7+variation*.6);
   const width=leafSize*1.9,height=leafSize*1.52;
