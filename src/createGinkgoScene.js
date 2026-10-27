@@ -168,8 +168,12 @@ export function createGinkgoScene(engine) {
   const greenLeaf=target===leaves&&treeAllowsGreen&&greenPick<.04+.18*greenPattern;
   const palette=treePalette==='red'?'red':greenLeaf?'green':'yellow';
   const yellow=[.98+redNoise*.10,.62+treeTint+greenNoise*.07,.06+blueNoise*.05];
+  // A smooth spatial gradient gives nearby green leaves related, but not identical, hues.
+  const greenGradient=Math.max(0,Math.min(1,
+   .5+.42*Math.sin(p.x*.65+p.y*.28+p.z*.43)+(greenNoise-.5)*.16));
   const accent=palette==='red'?[.85+redNoise*.08,.08+greenNoise*.10,.07+blueNoise*.06]:
-   [.59+redNoise*.08,.76+greenNoise*.07,.11+blueNoise*.04];
+   [.48+greenGradient*.30+redNoise*.03,.73+greenGradient*.15+greenNoise*.03,
+    .10+greenGradient*.09+blueNoise*.02];
   const patch=.5+.3*Math.sin(p.x*.81+p.z*.37)*Math.sin(p.y*.73-p.z*.41)+(redNoise-.5)*.22;
   const accentMix=palette==='yellow'?0:.45+.5*Math.max(0,Math.min(1,patch));
   const rgb=yellow.map((value,i)=>shade*(value*(1-accentMix)+accent[i]*accentMix));
