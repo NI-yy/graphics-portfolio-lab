@@ -1,27 +1,28 @@
 .landscape-background { position: fixed; inset: 0; z-index: 0; background: linear-gradient(140deg,#94b7cb,#d4c277 52%,#434b26); }
-.landscape-background--ocean { background: linear-gradient(#9abac7,#517d86 50%,#234a53); }
-.landscape-background--meadow { background: linear-gradient(#9abac7,#a3b7ab 45%,#6b7e45); }
 .landscape-background canvas { width: 100%; height: 100%; display: block; pointer-events: none; }
 .landscape-background canvas.interactive { pointer-events: auto; touch-action: none; cursor: grab; }
 .landscape-background canvas.interactive:active { cursor: grabbing; }
 .landscape-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg,#111b1420,#0d130e14 50%,#0d130e26),linear-gradient(0deg,#0e160b66,transparent 40%); }
-.landscape-controls { position: fixed; z-index: 30; left: 4vw; bottom: 35px; width: 250px; color: #f4f4e9; padding: 20px; border: 1px solid #ffffff30; border-radius: 8px; background: rgba(22,28,24,.86); backdrop-filter: blur(14px); box-sizing: border-box; }
-.landscape-note { font-size: 14px; line-height: 1.9; margin: 0 0 18px; color: #e3e6d8; }
-.scene-tabs { display: flex; gap: 5px; }
-.scene-tabs button { font-size: 13px; white-space: nowrap; flex: 1; border: 1px solid #ffffff26; color: #dce0d4; background: transparent; border-radius: 4px; padding: 9px 8px; cursor: pointer; }
-.scene-tabs button[aria-pressed=true] { background: #dacf9e; border-color: #dacf9e; color: #292e23; }
-.scene-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 13px; }
-.scene-actions button { color: #e1e4d8; border: 0; background: transparent; cursor: pointer; padding: 6px 0; font-size: 12px; }
-.scene-actions span { margin-left: 10px; }
-.scene-status { color: #b7beb0; font-size: 10px; margin: 10px 0 0; min-height: 15px; }
+.landscape-controls { position: fixed; z-index: 30; left: 4vw; bottom: 35px; width: 260px; color: #f4f4e9; padding: 17px 18px 15px; border: 1px solid #ffffff36; border-radius: 12px; background: rgba(22,28,24,.82); backdrop-filter: blur(18px); box-shadow: 0 12px 36px #11180e40; box-sizing: border-box; }
+.landscape-heading { display: flex; flex-direction: column; gap: 3px; padding-bottom: 13px; border-bottom: 1px solid #ffffff2b; }
+.landscape-kicker { color: #d9c682; font-size: 10px; letter-spacing: .2em; font-weight: 600; }
+.landscape-title { font-size: 19px; font-weight: 500; letter-spacing: .06em; }
+.scene-actions { display: flex; gap: 8px; margin-top: 13px; }
+.scene-actions button { cursor: pointer; border-radius: 7px; min-height: 38px; transition: background .2s ease, border-color .2s ease; }
+.scene-view-button { flex: 1; display: flex; justify-content: space-between; align-items: center; padding: 8px 11px; border: 1px solid #d6c586; color: #252b20; background: #d6c586; font-size: 12px; }
+.scene-view-button:hover { background: #f0dc96; border-color: #f0dc96; }
+.scene-view-button span { font-size: 16px; line-height: 1; }
+.scene-motion-button { width: 40px; border: 1px solid #ffffff45; color: #f4f4e9; background: #ffffff0c; font-size: 15px; }
+.scene-motion-button:hover { background: #ffffff22; }
+.scene-status, .scene-hint { color: #c8d0bf; font-size: 11px; margin: 11px 0 0; }
 .scene-only .landscape-shade { opacity: 0; }
-@media(max-width: 1050px) { .landscape-controls { left: 20px; bottom: 20px; width: 220px; padding: 16px; } }
+@media(max-width: 1050px) { .landscape-controls { left: 20px; bottom: 20px; } }
 @media(max-width: 760px) {
-  .landscape-controls { left: 12px; right: 12px; width: auto; bottom: max(10px, env(safe-area-inset-bottom)); padding: 10px 13px; display: grid; grid-template-columns: 1fr auto; gap: 4px 14px; }
-  .landscape-note { display: none; }
-  .scene-tabs { min-width: 0; align-self: center; }
-  .scene-tabs button { padding: 9px 7px; font-size: 12px; }
-  .scene-actions { margin: 0; align-items: center; gap: 13px; }
-  .scene-actions span { display: none; }
-  .scene-status { grid-column: 1/-1; margin: 2px 0 0; }
+  .landscape-controls { left: 12px; right: 12px; bottom: max(10px, env(safe-area-inset-bottom)); width: auto; padding: 10px 12px; display: flex; align-items: center; gap: 12px; }
+  .landscape-heading { flex: 1; min-width: 0; padding: 0; border: 0; }
+  .landscape-kicker { font-size: 8px; }
+  .landscape-title { font-size: 15px; white-space: nowrap; }
+  .scene-actions { margin: 0; flex: 0 0 auto; }
+  .scene-view-button { min-width: 96px; }
+  .scene-status, .scene-hint { display: none; }
 }
