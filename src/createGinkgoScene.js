@@ -120,7 +120,13 @@ export function createGinkgoScene(engine) {
   const bendSeed=a.x*12.99+a.y*78.23+a.z*37.72+b.x*43.17+b.y*11.13+b.z*91.19;
   const angle=(Math.abs(Math.sin(bendSeed)*43758.55)%1)*Math.PI*2;
   const variation=Math.abs(Math.sin(bendSeed*1.37)*24634.63)%1;
-  const bendAmount=Math.min(distance*.035,.12)*(.65+variation*.35)*(r0>.4?.45:r0<.025?.35:1);
+  const bendChoice=Math.abs(Math.sin(bendSeed*2.03+10.71)*31821.57)%1;
+  // Slender branches are more likely to take a stronger bend.
+  const thinness=Math.max(0,Math.min(1,(.25-r0)/.22));
+  const strongerBend=r0<=.4&&bendChoice<.12+thinness*.5;
+  const bendMultiplier=strongerBend?1.65+variation*.45:1;
+  const bendAmount=Math.min(distance*.035,.12)*(.65+variation*.35)
+   *(r0>.4?.45:r0<.025?.65:1)*bendMultiplier;
   const sag=(1-Math.abs(direction.y))*Math.min(distance,5)*.02;
   const bend=lateral.scale(Math.cos(angle)*bendAmount)
    .add(binormal.scale(Math.sin(angle)*bendAmount))
