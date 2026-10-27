@@ -109,7 +109,7 @@ export function createGinkgoScene(engine) {
  const minBranchRadius=.03;
  const terminalBranchRadius=.014;
  const childRadiusRatios={4:[.5,.4],3:[.66,.53],2:[.72,.6],1:[.75,.64]};
- let treeTint=0,treePalette='yellow';
+ let treeTint=0,treePalette='yellow',treeAllowsGreen=false;
  const branches={positions:[],indices:[],colors:[],uvs:[]}, leaves={positions:[],indices:[],colors:[],uvs:[]};
  const fallingLeaves={positions:[],indices:[],colors:[],uvs:[]};
  function tube(a,b,r0,r1,sides=10){
@@ -163,11 +163,15 @@ export function createGinkgoScene(engine) {
   const base=target.positions.length/3;
   const shade=.78+random()*.32;
   const redNoise=random(),greenNoise=random(),blueNoise=random();
+  const greenPattern=.5+.5*Math.sin(p.x*1.5+p.z*.9)*Math.sin(p.y*1.2-p.z*.6);
+  const greenPick=Math.abs(Math.sin(p.x*83.17+p.y*24.41+p.z*59.73)*43758.55)%1;
+  const greenLeaf=target===leaves&&treeAllowsGreen&&greenPick<.04+.18*greenPattern;
+  const palette=treePalette==='red'?'red':greenLeaf?'green':'yellow';
   const yellow=[.98+redNoise*.10,.62+treeTint+greenNoise*.07,.06+blueNoise*.05];
-  const accent=treePalette==='red'?[.85+redNoise*.08,.08+greenNoise*.10,.07+blueNoise*.06]:
+  const accent=palette==='red'?[.85+redNoise*.08,.08+greenNoise*.10,.07+blueNoise*.06]:
    [.59+redNoise*.08,.76+greenNoise*.07,.11+blueNoise*.04];
   const patch=.5+.3*Math.sin(p.x*.81+p.z*.37)*Math.sin(p.y*.73-p.z*.41)+(redNoise-.5)*.22;
-  const accentMix=treePalette==='yellow'?0:.45+.5*Math.max(0,Math.min(1,patch));
+  const accentMix=palette==='yellow'?0:.45+.5*Math.max(0,Math.min(1,patch));
   const rgb=yellow.map((value,i)=>shade*(value*(1-accentMix)+accent[i]*accentMix));
   const thinning=Math.abs(Math.sin(p.x*93.99+p.y*67.35+p.z*54.12)*43758.5453)%1;
   if(target===leaves&&thinning<canopyThinning)return;
@@ -270,34 +274,32 @@ export function createGinkgoScene(engine) {
    const childRadius=radius*childRadiusRatios[depth][k===0?0:1];
    if(childLength<.2||childRadius<minBranchRadius)continue;
    const parentPalette=treePalette;
-   if(depth===4&&parentPalette!=='yellow'){
-    const accentBranch=parentPalette==='green'?1:3;
-    treePalette=k===accentBranch?parentPalette:'yellow';
-   }
+   if(depth===4&&parentPalette==='red')treePalette=k===3?'red':'yellow';
    branch(start,child,childLength,childRadius,depth-1,side,remainingReach-childLength);
    treePalette=parentPalette;
   }
   return curve;
  }
  // Two rows of crowns meet above the viewer, like the photographed ginkgo avenue.
- // Keep the red and yellow-green branch clusters on separate trees, surrounded by yellow.
- const greenRow=1,redRow=2;
+ // Scatter yellow-green leaves through yellow crowns away from the red tree.
+ const redRow=2;
  const trunks=[];
  for(let row=0;row<8;row++) for(const side of [-1,1]){
   const x=side*5.8,z=-7+row*7.1;
   const scale=(1.12-row*.026)*(row===0&&side===1?1.07:1);
   treeTint=random()*.13;
-  treePalette=row===greenRow&&side===-1?'green':row===redRow&&side===1?'red':'yellow';
+  treePalette=row===redRow&&side===1?'red':'yellow';
+  treeAllowsGreen=(side===-1&&row!==redRow)||row>=5;
   const root=new Vector3(x,-1,z);
   const trunkDirection=new Vector3(-side*(.12+random()*.1),1,(random()-.5)*.12).normalize();
   const trunkLength=(6.2+random()*1.3)*scale;
   const radius=(.42+random()*.14)*scale;
   const curve=branch(root,trunkDirection,trunkLength,radius,4,side);
-  trunks.push({side,radius,tint:treeTint,curve});
+  trunks.push({side,radius,tint:treeTint,allowsGreen:treeAllowsGreen,curve});
  }
  // Three smaller scaffold branches fill the otherwise bare middle of each upper trunk.
- for(const {side,radius,tint,curve} of trunks){
-  treeTint=tint;treePalette='yellow';
+ for(const {side,radius,tint,allowsGreen,curve} of trunks){
+  treeTint=tint;treePalette='yellow';treeAllowsGreen=allowsGreen;
   for(let k=0;k<3;k++){
    const start=curve(.62+k*.11);
    const radial=[
@@ -310,7 +312,7 @@ export function createGinkgoScene(engine) {
   }
  }
  // A handful of independent leaves drift through the open space below the crowns.
- treePalette='yellow';
+ treePalette='yellow';treeAllowsGreen=false;
  for(let i=0;i<(density<1?24:62);i++){
   treeTint=random()*.1;
   leaf(new Vector3((random()-.5)*7,11+random()*4,-1+random()*28),.15+random()*.09,fallingLeaves,random());
