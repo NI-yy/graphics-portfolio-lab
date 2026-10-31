@@ -110,7 +110,8 @@ export function createGinkgoScene(engine) {
  const terminalBranchRadius=.014;
  const childRadiusRatios={4:[.5,.4],3:[.66,.53],2:[.72,.6],1:[.75,.64]};
  let treeTint=0,treePalette='yellow',treeAllowsGreen=false;
- const branches={positions:[],indices:[],colors:[],uvs:[]}, leaves={positions:[],indices:[],colors:[],uvs:[]};
+ const geometry=()=>({positions:[],indices:[],colors:[],uvs:[]});
+ let branches,leaves;
  const fallingLeaves={positions:[],indices:[],colors:[],uvs:[]};
  function tube(a,b,r0,r1,sides=10){
   const base=branches.positions.length/3, rings=r0<.025?3:7;
@@ -289,6 +290,7 @@ export function createGinkgoScene(engine) {
  const redRow=2;
  const trunks=[];
  for(let row=0;row<8;row++) for(const side of [-1,1]){
+  branches=geometry();leaves=geometry();
   const x=side*5.8,z=-7+row*7.1;
   const scale=(1.12-row*.026)*(row===0&&side===1?1.07:1);
   treeTint=random()*.13;
@@ -299,10 +301,12 @@ export function createGinkgoScene(engine) {
   const trunkLength=(6.2+random()*1.3)*scale;
   const radius=(.42+random()*.14)*scale;
   const curve=branch(root,trunkDirection,trunkLength,radius,4,side);
-  trunks.push({side,radius,tint:treeTint,allowsGreen:treeAllowsGreen,curve});
+  trunks.push({row,side,radius,tint:treeTint,allowsGreen:treeAllowsGreen,curve,branches,leaves});
  }
  // Three smaller scaffold branches fill the otherwise bare middle of each upper trunk.
- for(const {side,radius,tint,allowsGreen,curve} of trunks){
+ for(const trunk of trunks){
+  const {side,radius,tint,allowsGreen,curve}=trunk;
+  branches=trunk.branches;leaves=trunk.leaves;
   treeTint=tint;treePalette='yellow';treeAllowsGreen=allowsGreen;
   for(let k=0;k<3;k++){
    const start=curve(.62+k*.11);
@@ -321,26 +325,35 @@ export function createGinkgoScene(engine) {
   treeTint=random()*.1;
   leaf(new Vector3((random()-.5)*7,11+random()*4,-1+random()*28),.15+random()*.09,fallingLeaves,random());
  }
- function meshFrom(name,data,foliage){
+ function meshFrom(name,data,material){
   const mesh=new Mesh(name,scene),vd=new VertexData();
   vd.positions=data.positions;vd.indices=data.indices;vd.colors=data.colors;vd.uvs=data.uvs;vd.normals=[];
   VertexData.ComputeNormals(vd.positions,vd.indices,vd.normals);vd.applyToMesh(mesh);
-  const mat=new ShaderMaterial(name,scene,'ginkgo',{attributes:['position','normal','color','uv'],uniforms:['worldViewProjection','time','foliage'],samplers:['leafTexture','barkTexture']});
-  mat.backFaceCulling=false;mat.setFloat('foliage',foliage);mat.setFloat('time',0);mesh.material=mat;
-  return mat;
+  mesh.material=material;
+  mesh.freezeWorldMatrix();
+  return mesh;
  }
  const texture=new Texture(leafImage,scene,false,false,Texture.TRILINEAR_SAMPLINGMODE);
  const barkTexture=new Texture(barkImage,scene,false,false,Texture.TRILINEAR_SAMPLINGMODE);
  barkTexture.wrapU=Texture.WRAP_ADDRESSMODE;
  barkTexture.wrapV=Texture.WRAP_ADDRESSMODE;
- const barkMaterial=meshFrom('branches',branches,0);
- barkMaterial.setTexture('leafTexture',texture);
- barkMaterial.setTexture('barkTexture',barkTexture);
- const leafMaterial=meshFrom('fan-shaped ginkgo leaves',leaves,1);
- leafMaterial.setTexture('leafTexture',texture);
- leafMaterial.setTexture('barkTexture',barkTexture);
- const fallingMaterial=meshFrom('drifting ginkgo leaves',fallingLeaves,2);
- fallingMaterial.setTexture('leafTexture',texture);
- fallingMaterial.setTexture('barkTexture',barkTexture);
+ const material=(name,foliage)=>{
+  const mat=new ShaderMaterial(name,scene,'ginkgo',{attributes:['position','normal','color','uv'],uniforms:['worldViewProjection','time','foliage'],samplers:['leafTexture','barkTexture']});
+  mat.backFaceCulling=false;mat.setFloat('foliage',foliage);mat.setFloat('time',0);
+  mat.setTexture('leafTexture',texture);mat.setTexture('barkTexture',barkTexture);
+  return mat;
+ };
+ const barkMaterial=material('branches',0);
+ const leafMaterial=material('fan-shaped ginkgo leaves',1);
+ const fallingMaterial=material('drifting ginkgo leaves',2);
+ // Separate each tree so Babylon can skip trees outside the camera frustum.
+ for(const {row,side,branches:treeBranches,leaves:treeLeaves} of trunks){
+  const name=`tree ${row} ${side}`;
+  meshFrom(`${name} branches`,treeBranches,barkMaterial);
+  meshFrom(`${name} leaves`,treeLeaves,leafMaterial);
+ }
+ const fallingMesh=meshFrom('drifting ginkgo leaves',fallingLeaves,fallingMaterial);
+ // The falling leaves move beyond their original bounding box in the vertex shader.
+ fallingMesh.alwaysSelectAsActiveMesh=true;
  return {scene,update(time,look){leafMaterial.setFloat('time',time);fallingMaterial.setFloat('time',time);camera.setTarget(new Vector3(look.x*7,15.5+look.y*6,8));}};
 }

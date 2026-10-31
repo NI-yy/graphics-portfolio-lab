@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import '../styles/LandscapeHero.css';
 export default function LandscapeHero({ sceneOnly, onToggleScene }) {
   const canvasRef = useRef(null), renderer = useRef(null);
+  const sceneOnlyRef = useRef(sceneOnly);
+  sceneOnlyRef.current = sceneOnly;
   const [status, setStatus] = useState('loading');
   const [paused, setPaused] = useState(false);
   useEffect(() => {
@@ -9,10 +11,12 @@ export default function LandscapeHero({ sceneOnly, onToggleScene }) {
     import('../createLandscape').then(({ createLandscape }) => {
       if (disposed) return;
       renderer.current = createLandscape(canvasRef.current);
+      renderer.current.setSceneOnly(sceneOnlyRef.current);
       setStatus('ready');
     }).catch((error) => { if (!disposed) setStatus('error'); console.warn(error); });
     return () => { disposed = true; renderer.current?.dispose(); renderer.current = null; };
   }, []);
+  useEffect(() => { renderer.current?.setSceneOnly(sceneOnly); }, [sceneOnly]);
   const togglePause = () => { setPaused(!paused); renderer.current?.setPaused(!paused); };
   return <>
     <div className="landscape-background">

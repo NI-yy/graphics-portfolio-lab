@@ -11,7 +11,8 @@ export function createLandscape(canvas) {
   const ginkgo = createGinkgoScene(engine);
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const look = { x: 0, y: 0 };
-  let active = true, pointer = null, paused = false, elapsed = 0;
+  let active = true, pointer = null, paused = false, sceneOnly = false, elapsed = 0;
+  let lastRenderTime = -Infinity, needsRender = true;
   let sampleStart = performance.now(), sampledFrames = 0;
 
   const observer = new IntersectionObserver(([entry]) => { active = entry.isIntersecting; }, { threshold: 0.01 });
@@ -19,6 +20,7 @@ export function createLandscape(canvas) {
   const onResize = () => {
     pixelRatio = Math.min(pixelRatio, maxPixelRatio());
     engine.setHardwareScalingLevel(1 / pixelRatio);
+    needsRender = true;
   };
   const onPointerDown = (event) => { canvas.setPointerCapture(event.pointerId); pointer = { x: event.clientX, y: event.clientY }; };
   const onPointerMove = (event) => {
@@ -26,6 +28,7 @@ export function createLandscape(canvas) {
     look.x = Math.max(-1, Math.min(1, look.x + (event.clientX - pointer.x) / 650));
     look.y = Math.max(-1, Math.min(1, look.y + (event.clientY - pointer.y) / 650));
     pointer = { x: event.clientX, y: event.clientY };
+    needsRender = true;
   };
   const onPointerUp = () => { pointer = null; };
   const resizeObserver = new ResizeObserver(onResize);
@@ -36,24 +39,36 @@ export function createLandscape(canvas) {
   canvas.addEventListener('pointercancel', onPointerUp);
 
   engine.runRenderLoop(() => {
+    const now = performance.now();
     if (!active || document.hidden) {
-      sampleStart = performance.now();
+      sampleStart = now;
+      sampledFrames = 0;
+      lastRenderTime = -Infinity;
+      needsRender = true;
+      return;
+    }
+    const staticFrame = paused || reducedMotion;
+    if (staticFrame && !needsRender) {
+      sampleStart = now;
       sampledFrames = 0;
       return;
     }
-    if (!paused && !reducedMotion) elapsed += Math.min(engine.getDeltaTime(), 50) * .001;
+    const targetFps = sceneOnly ? 60 : 30;
+    if (now - lastRenderTime < 1000 / targetFps - 1) return;
+    if (!staticFrame && lastRenderTime !== -Infinity) elapsed += Math.min(now - lastRenderTime, 100) * .001;
+    lastRenderTime = now;
+    needsRender = false;
     ginkgo.update(elapsed, look);
     ginkgo.scene.render();
 
-    if (isNarrowScreen()) {
+    if (isNarrowScreen() && !staticFrame) {
       sampledFrames++;
-      const now = performance.now();
       if (now - sampleStart >= 3000) {
         const fps = sampledFrames * 1000 / (now - sampleStart);
         const limit = maxPixelRatio();
         const previousRatio = pixelRatio;
-        if (fps < 40) pixelRatio = Math.max(1, pixelRatio - .125);
-        else if (fps > 55) pixelRatio = Math.min(limit, pixelRatio + .125);
+        if (fps < targetFps * .7) pixelRatio = Math.max(1, pixelRatio - .125);
+        else if (fps > targetFps * .9) pixelRatio = Math.min(limit, pixelRatio + .125);
         if (pixelRatio !== previousRatio) engine.setHardwareScalingLevel(1 / pixelRatio);
         sampleStart = now;
         sampledFrames = 0;
@@ -62,7 +77,14 @@ export function createLandscape(canvas) {
   });
 
   return {
-    setPaused(value) { paused = value; },
+    setPaused(value) { paused = value; lastRenderTime = -Infinity; needsRender = true; },
+    setSceneOnly(value) {
+      sceneOnly = value;
+      lastRenderTime = -Infinity;
+      needsRender = true;
+      sampleStart = performance.now();
+      sampledFrames = 0;
+    },
     dispose() {
       resizeObserver.disconnect();
       observer.disconnect();
