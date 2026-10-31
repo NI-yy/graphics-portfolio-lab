@@ -3,6 +3,11 @@
 .landscape-background canvas.interactive { pointer-events: auto; touch-action: none; cursor: grab; }
 .landscape-background canvas.interactive:active { cursor: grabbing; }
 .landscape-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg,#111b1420,#0d130e14 50%,#0d130e26),linear-gradient(0deg,#0e160b66,transparent 40%); }
+.culling-demo-frame { position: fixed; z-index: 5; inset: 19%; border: 2px dashed #f3db80; box-shadow: 0 0 0 100vmax #10160c38; pointer-events: none; }
+.culling-demo-hud { position: fixed; z-index: 30; top: 20px; left: 4vw; max-width: 280px; padding: 13px 15px; display: flex; flex-direction: column; gap: 5px; color: #f4f4e9; background: #161c18e8; border: 1px solid #ffffff42; border-radius: 9px; font-size: 13px; }
+.culling-demo-hud strong { color: #f3db80; font-size: 14px; }
+.culling-demo-hud small { color: #d1d6c8; line-height: 1.5; }
+.culling-demo-hud a { color: #f3db80; text-underline-offset: 3px; margin-top: 3px; }
 .landscape-controls { position: fixed; z-index: 30; left: 4vw; bottom: 35px; width: 260px; color: #f4f4e9; padding: 17px 18px 15px; border: 1px solid #ffffff36; border-radius: 12px; background: rgba(22,28,24,.82); backdrop-filter: blur(18px); box-shadow: 0 12px 36px #11180e40; box-sizing: border-box; }
 .landscape-heading { display: flex; flex-direction: column; gap: 3px; padding-bottom: 13px; border-bottom: 1px solid #ffffff2b; }
 .landscape-kicker { color: #d9c682; font-size: 10px; letter-spacing: .2em; font-weight: 600; }
@@ -18,6 +23,7 @@
 .scene-only .landscape-shade { opacity: 0; }
 @media(max-width: 1050px) { .landscape-controls { left: 20px; bottom: 20px; } }
 @media(max-width: 760px) {
+  .culling-demo-hud { top: max(12px, env(safe-area-inset-top)); left: 12px; max-width: min(280px, calc(100vw - 24px)); }
   .landscape-controls { left: 12px; right: 12px; bottom: max(10px, env(safe-area-inset-bottom)); width: auto; padding: 10px 12px; display: flex; align-items: center; gap: 12px; }
   .landscape-heading { flex: 1; min-width: 0; padding: 0; border: 0; }
   .landscape-kicker { font-size: 8px; }

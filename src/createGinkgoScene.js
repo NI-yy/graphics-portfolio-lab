@@ -2,6 +2,7 @@ import { Scene } from '@babylonjs/core/scene';
 import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera';
 import { Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { Color4 } from '@babylonjs/core/Maths/math.color';
+import { Frustum } from '@babylonjs/core/Maths/math.frustum';
 import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
 import { VertexData } from '@babylonjs/core/Meshes/mesh.vertexData';
@@ -357,14 +358,36 @@ export function createGinkgoScene(engine) {
  const barkMaterial=material('branches',0);
  const leafMaterial=material('fan-shaped ginkgo leaves',1);
  const fallingMaterial=material('drifting ginkgo leaves',2);
+ const treeMeshes=[];
  // Separate each tree so Babylon can skip trees outside the camera frustum.
  for(const {row,side,branches:treeBranches,leaves:treeLeaves} of trunks){
   const name=`tree ${row} ${side}`;
-  meshFrom(`${name} branches`,treeBranches,barkMaterial);
-  meshFrom(`${name} leaves`,treeLeaves,leafMaterial);
+  treeMeshes.push(meshFrom(`${name} branches`,treeBranches,barkMaterial));
+  treeMeshes.push(meshFrom(`${name} leaves`,treeLeaves,leafMaterial));
  }
  const fallingMesh=meshFrom('drifting ginkgo leaves',fallingLeaves,fallingMaterial);
  // The falling leaves move beyond their original bounding box in the vertex shader.
  fallingMesh.alwaysSelectAsActiveMesh=true;
- return {scene,update(time,look){leafMaterial.setFloat('time',time);fallingMaterial.setFloat('time',time);camera.setTarget(new Vector3(look.x*7,15.5+look.y*6,8));}};
+ return {
+  scene,
+  setCullingDemo(enabled){
+   if(!enabled)for(const mesh of treeMeshes)mesh.isVisible=true;
+  },
+  update(time,look,cullingDemo){
+   leafMaterial.setFloat('time',time);
+   fallingMaterial.setFloat('time',time);
+   camera.setTarget(new Vector3(look.x*7,15.5+look.y*6,8));
+   if(!cullingDemo)return null;
+   // Shrink the projection for the demonstration while leaving the rendered view unchanged.
+   const projection=camera.getProjectionMatrix().clone();
+   projection.m[0]/=.62;projection.m[5]/=.62;
+   const planes=Frustum.GetPlanes(camera.getViewMatrix().multiply(projection));
+   let visible=0;
+   for(const mesh of treeMeshes){
+    mesh.isVisible=mesh.isInFrustum(planes);
+    if(mesh.isVisible)visible++;
+   }
+   return visible;
+  }
+ };
 }

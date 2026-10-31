@@ -1,7 +1,7 @@
 import { Engine } from '@babylonjs/core/Engines/engine';
 import { createGinkgoScene } from './createGinkgoScene';
 
-export function createLandscape(canvas) {
+export function createLandscape(canvas, { onCullingChange } = {}) {
   const engine = new Engine(canvas, true, { preserveDrawingBuffer: true, stencil: false });
   const isNarrowScreen = () => canvas.clientWidth < 700;
   const maxPixelRatio = () => Math.min(Math.max(window.devicePixelRatio || 1, 1), 1.25);
@@ -11,7 +11,8 @@ export function createLandscape(canvas) {
   const ginkgo = createGinkgoScene(engine);
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const look = { x: 0, y: 0 };
-  let active = true, pointer = null, paused = false, sceneOnly = false, elapsed = 0;
+  let active = true, pointer = null, paused = false, sceneOnly = false, cullingDemo = false, elapsed = 0;
+  let lastCullingCount = null;
   let lastRenderTime = -Infinity, needsRender = true;
   let sampleStart = performance.now(), sampledFrames = 0;
 
@@ -58,7 +59,11 @@ export function createLandscape(canvas) {
     if (!staticFrame && lastRenderTime !== -Infinity) elapsed += Math.min(now - lastRenderTime, 100) * .001;
     lastRenderTime = now;
     needsRender = false;
-    ginkgo.update(elapsed, look);
+    const visibleCount = ginkgo.update(elapsed, look, cullingDemo);
+    if (cullingDemo && visibleCount !== lastCullingCount) {
+      lastCullingCount = visibleCount;
+      onCullingChange?.(visibleCount);
+    }
     ginkgo.scene.render();
 
     if (isNarrowScreen() && !staticFrame) {
@@ -84,6 +89,14 @@ export function createLandscape(canvas) {
       needsRender = true;
       sampleStart = performance.now();
       sampledFrames = 0;
+    },
+    setCullingDemo(value) {
+      cullingDemo = value;
+      ginkgo.setCullingDemo(value);
+      lastCullingCount = null;
+      onCullingChange?.(null);
+      lastRenderTime = -Infinity;
+      needsRender = true;
     },
     dispose() {
       resizeObserver.disconnect();

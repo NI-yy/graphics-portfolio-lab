@@ -27,9 +27,10 @@ const theme = createTheme({
 });
 
 function App() {
+  const cullingDemo = new URLSearchParams(window.location.search).get('culling-demo') === '1';
   const [activeSection, setActiveSection] = useState('about');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [sceneOnly, setSceneOnly] = useState(false);
+  const [sceneOnly, setSceneOnly] = useState(cullingDemo);
   useEffect(() => {
     if (!sceneOnly) return;
     const previous = document.body.style.overflow;
@@ -98,7 +99,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
     <div className={`App ${sceneOnly ? 'scene-only' : ''}`}>
-      <LandscapeHero sceneOnly={sceneOnly} onToggleScene={() => setSceneOnly((value) => !value)} />
+      <LandscapeHero sceneOnly={sceneOnly} cullingDemo={cullingDemo && sceneOnly} onToggleScene={() => setSceneOnly((value) => !value)} />
       <Sidebar
         activeSection={activeSection}
         isMenuOpen={isMenuOpen}
