@@ -59,12 +59,15 @@ export function createLandscape(canvas, { onCullingChange } = {}) {
     if (!staticFrame && lastRenderTime !== -Infinity) elapsed += Math.min(now - lastRenderTime, 100) * .001;
     lastRenderTime = now;
     needsRender = false;
-    const visibleCount = ginkgo.update(elapsed, look, cullingDemo);
-    if (cullingDemo && visibleCount !== lastCullingCount) {
-      lastCullingCount = visibleCount;
-      onCullingChange?.(visibleCount);
-    }
+    ginkgo.update(elapsed, look);
     ginkgo.scene.render();
+    if (cullingDemo) {
+      const visibleCount = ginkgo.getVisibleTreeMeshCount();
+      if (visibleCount !== lastCullingCount) {
+        lastCullingCount = visibleCount;
+        onCullingChange?.(visibleCount);
+      }
+    }
 
     if (isNarrowScreen() && !staticFrame) {
       sampledFrames++;

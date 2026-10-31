@@ -33,7 +33,7 @@ export default function LandscapeHero({ sceneOnly, cullingDemo, onToggleScene })
       <div className="culling-demo-hud">
         <strong>カリング確認モード</strong>
         <span>描画対象: {visibleMeshes ?? '…'} / 32 メッシュ</span>
-        <small>破線は狭めた判定範囲の目安です。ドラッグで見回せます。</small>
+        <small>破線の内側だけ描画しています。ドラッグで見回せます。</small>
         <a href={window.location.pathname}>通常表示へ ↗</a>
       </div>
     </>}

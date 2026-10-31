@@ -2,7 +2,7 @@ import { Scene } from '@babylonjs/core/scene';
 import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera';
 import { Vector3 } from '@babylonjs/core/Maths/math.vector';
 import { Color4 } from '@babylonjs/core/Maths/math.color';
-import { Frustum } from '@babylonjs/core/Maths/math.frustum';
+import { Viewport } from '@babylonjs/core/Maths/math.viewport';
 import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
 import { VertexData } from '@babylonjs/core/Meshes/mesh.vertexData';
@@ -105,6 +105,7 @@ export function createGinkgoScene(engine) {
  scene.clearColor=new Color4(.55,.7,.8,1);
  const camera=new FreeCamera('under the ginkgo trees',new Vector3(0,1.8,-1),scene);
  camera.fov=1.08; camera.minZ=.1; camera.maxZ=250;
+ const normalFov=camera.fov;
  camera.setTarget(new Vector3(0,15.5,8));
  new FxaaPostProcess('ginkgo edge smoothing',1,camera,Texture.BILINEAR_SAMPLINGMODE,engine);
  const sky=MeshBuilder.CreateSphere('autumn sky',{diameter:180,segments:24,sideOrientation:Mesh.BACKSIDE},scene);
@@ -371,22 +372,19 @@ export function createGinkgoScene(engine) {
  return {
   scene,
   setCullingDemo(enabled){
-   if(!enabled)for(const mesh of treeMeshes)mesh.isVisible=true;
+   camera.viewport=enabled?new Viewport(.19,.19,.62,.62):new Viewport(0,0,1,1);
+   camera.fov=enabled?2*Math.atan(Math.tan(normalFov/2)*.62):normalFov;
+   scene.clearColor=enabled?new Color4(.08,.11,.09,1):new Color4(.55,.7,.8,1);
   },
-  update(time,look,cullingDemo){
+  update(time,look){
    leafMaterial.setFloat('time',time);
    fallingMaterial.setFloat('time',time);
    camera.setTarget(new Vector3(look.x*7,15.5+look.y*6,8));
-   if(!cullingDemo)return null;
-   // Shrink the projection for the demonstration while leaving the rendered view unchanged.
-   const projection=camera.getProjectionMatrix().clone();
-   projection.m[0]/=.62;projection.m[5]/=.62;
-   const planes=Frustum.GetPlanes(camera.getViewMatrix().multiply(projection));
+  },
+  getVisibleTreeMeshCount(){
+   const active=scene.getActiveMeshes();
    let visible=0;
-   for(const mesh of treeMeshes){
-    mesh.isVisible=mesh.isInFrustum(planes);
-    if(mesh.isVisible)visible++;
-   }
+   for(let i=0;i<active.length;i++)if(treeMeshes.includes(active.data[i]))visible++;
    return visible;
   }
  };
