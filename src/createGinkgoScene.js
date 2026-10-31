@@ -100,7 +100,7 @@ export function createGinkgoScene(engine) {
  skyMat.backFaceCulling=false; sky.material=skyMat;
  let seed=417;
  const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
- const density=(engine.getRenderingCanvas()?.clientWidth||engine.getRenderWidth())<700?.46:1;
+ const density=(engine.getRenderingCanvas()?.clientWidth||engine.getRenderWidth())<700?.72:1;
  const canopyThinning=.10;
  // Scene-unit limits for each woody limb, excluding the main trunk.
  const maxLimbReach=6.6;
