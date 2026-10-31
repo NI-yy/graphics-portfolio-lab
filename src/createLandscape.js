@@ -1,4 +1,4 @@
-import { Engine } from '@babylonjs/core';
+import { Engine } from '@babylonjs/core/Engines/engine';
 import { createGinkgoScene } from './createGinkgoScene';
 
 export function createLandscape(canvas) {

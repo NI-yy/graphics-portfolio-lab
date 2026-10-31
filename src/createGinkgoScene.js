@@ -1,6 +1,17 @@
-import { Scene, FreeCamera, Vector3, Color4, Mesh, MeshBuilder, VertexData, ShaderMaterial, Effect, Texture, FxaaPostProcess } from '@babylonjs/core';
-import leafImage from './img/ginkgo-leaf.png';
-import barkImage from './img/ginkgo-bark.png';
+import { Scene } from '@babylonjs/core/scene';
+import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera';
+import { Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { Color4 } from '@babylonjs/core/Maths/math.color';
+import { Mesh } from '@babylonjs/core/Meshes/mesh';
+import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder';
+import { VertexData } from '@babylonjs/core/Meshes/mesh.vertexData';
+import { ShaderMaterial } from '@babylonjs/core/Materials/shaderMaterial';
+import { Effect } from '@babylonjs/core/Materials/effect';
+import { Texture } from '@babylonjs/core/Materials/Textures/texture';
+import { FxaaPostProcess } from '@babylonjs/core/PostProcesses/fxaaPostProcess';
+
+const leafImage = `${process.env.PUBLIC_URL}/ginkgo-leaf.webp`;
+const barkImage = `${process.env.PUBLIC_URL}/ginkgo-bark.webp`;
 
 // Seeded, procedural geometry: the supplied photograph guides the composition;
 // it is not used as a background texture.
