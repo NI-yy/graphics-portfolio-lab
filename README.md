@@ -22,6 +22,7 @@ npm run build
 
 背景の管理は `src/createLandscape.js`、イチョウの生成は `src/createGinkgoScene.js`、
 UI は `src/components/LandscapeHero.js` にあります。Babylon.js は遅延読み込みします。
+Skills のアイコンは [Devicon](https://github.com/devicons/devicon) の SVG を使用しています（MIT License、`public/skills/LICENSE-devicon`）。
 `main` への push で GitHub Pages に公開されます。
 
 ## Library used
