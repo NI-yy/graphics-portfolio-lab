@@ -49,7 +49,7 @@ export default function LandscapeHero({ sceneOnly, cullingDemo, onToggleScene })
       <div className="culling-demo-frame" aria-hidden="true" />
       <div className="culling-demo-hud">
         <strong>カリング確認モード</strong>
-        <span>描画対象: {visibleMeshes ?? '…'} / 32 メッシュ</span>
+        <span>描画対象: {visibleMeshes?.visibleMeshes ?? '…'} / {visibleMeshes?.totalMeshes ?? '…'} メッシュ</span>
         <small>破線の内側だけ描画しています。ドラッグで見回せます。</small>
         <a href={window.location.pathname}>通常表示へ ↗</a>
       </div>
@@ -62,6 +62,7 @@ export default function LandscapeHero({ sceneOnly, cullingDemo, onToggleScene })
         <div><dt>フレーム間隔 P95</dt><dd>{stats.frameP95?.toFixed(1) ?? '—'} ms</dd></div>
         <div><dt>描画処理 CPU 平均</dt><dd>{stats.renderMs.toFixed(1)} ms</dd></div>
         <div><dt>表示中の樹木メッシュ</dt><dd>{stats.visibleMeshes} / {stats.totalMeshes}</dd></div>
+        <div><dt>描画対象の樹木三角形</dt><dd>{Math.round(stats.visibleTriangles / 1000)}k / {Math.round(stats.totalTriangles / 1000)}k</dd></div>
         <div><dt>描画解像度</dt><dd>{stats.width} × {stats.height}</dd></div>
         <div><dt>実効ピクセル比</dt><dd>{stats.pixelRatio.toFixed(2)}×</dd></div>
       </dl>}

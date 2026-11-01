@@ -79,12 +79,12 @@ export function createLandscape(canvas, { onCullingChange, onStatsChange } = {})
       if (renderEnd - statsStart >= 1000) {
         const sorted = [...frameIntervals].sort((a, b) => a - b);
         const canvasWidth = canvas.clientWidth || 1;
+        const visibility = ginkgo.getTreeVisibilityStats();
         onStatsChange?.({
           fps: Math.round(statsFrames * 1000 / (renderEnd - statsStart)),
           frameP95: sorted.length ? sorted[Math.ceil(sorted.length * .95) - 1] : null,
           renderMs: renderTimes.reduce((sum, value) => sum + value, 0) / renderTimes.length,
-          visibleMeshes: ginkgo.getVisibleTreeMeshCount(),
-          totalMeshes: ginkgo.treeMeshCount,
+          ...visibility,
           width: canvas.width,
           height: canvas.height,
           pixelRatio: canvas.width / canvasWidth,
@@ -94,10 +94,10 @@ export function createLandscape(canvas, { onCullingChange, onStatsChange } = {})
       }
     }
     if (cullingDemo) {
-      const visibleCount = ginkgo.getVisibleTreeMeshCount();
-      if (visibleCount !== lastCullingCount) {
-        lastCullingCount = visibleCount;
-        onCullingChange?.(visibleCount);
+      const visibility = ginkgo.getTreeVisibilityStats();
+      if (visibility.visibleMeshes !== lastCullingCount) {
+        lastCullingCount = visibility.visibleMeshes;
+        onCullingChange?.(visibility);
       }
     }
 

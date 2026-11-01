@@ -346,6 +346,27 @@ export function createGinkgoScene(engine) {
   mesh.freezeWorldMatrix();
   return mesh;
  }
+ function splitLeaves(data,treeX,treeZ){
+  const chunks=Array.from({length:8},geometry);
+  for(let vertex=0;vertex<data.positions.length/3;vertex+=4){
+   const position=vertex*3, color=vertex*4, uv=vertex*2;
+   let x=0,y=0,z=0;
+   for(let i=0;i<4;i++){
+    x+=data.positions[position+i*3];
+    y+=data.positions[position+i*3+1];
+    z+=data.positions[position+i*3+2];
+   }
+   const bucket=(x>=treeX*4?1:0)+(z>=treeZ*4?2:0)+(y>=40?4:0);
+   const chunk=chunks[bucket],base=chunk.positions.length/3;
+   for(let i=0;i<4;i++){
+    for(let n=0;n<3;n++)chunk.positions.push(data.positions[position+i*3+n]);
+    for(let n=0;n<4;n++)chunk.colors.push(data.colors[color+i*4+n]);
+    for(let n=0;n<2;n++)chunk.uvs.push(data.uvs[uv+i*2+n]);
+   }
+   chunk.indices.push(base,base+1,base+2,base+1,base+3,base+2);
+  }
+  return chunks.filter(chunk=>chunk.indices.length);
+ }
  const texture=new Texture(leafImage,scene,false,false,Texture.TRILINEAR_SAMPLINGMODE);
  const barkTexture=new Texture(barkImage,scene,false,false,Texture.TRILINEAR_SAMPLINGMODE);
  barkTexture.wrapU=Texture.WRAP_ADDRESSMODE;
@@ -360,18 +381,21 @@ export function createGinkgoScene(engine) {
  const leafMaterial=material('fan-shaped ginkgo leaves',1);
  const fallingMaterial=material('drifting ginkgo leaves',2);
  const treeMeshes=[];
- // Separate each tree so Babylon can skip trees outside the camera frustum.
+ // Keep woody geometry per tree, but split foliage into spatial chunks for finer frustum culling.
  for(const {row,side,branches:treeBranches,leaves:treeLeaves} of trunks){
   const name=`tree ${row} ${side}`;
   treeMeshes.push(meshFrom(`${name} branches`,treeBranches,barkMaterial));
-  treeMeshes.push(meshFrom(`${name} leaves`,treeLeaves,leafMaterial));
+  const treeX=side*5.8,treeZ=-7+row*7.1;
+  splitLeaves(treeLeaves,treeX,treeZ).forEach((chunk,index)=>{
+   treeMeshes.push(meshFrom(`${name} leaves ${index}`,chunk,leafMaterial));
+  });
  }
  const fallingMesh=meshFrom('drifting ginkgo leaves',fallingLeaves,fallingMaterial);
  // The falling leaves move beyond their original bounding box in the vertex shader.
  fallingMesh.alwaysSelectAsActiveMesh=true;
+ const totalTreeTriangles=treeMeshes.reduce((sum,mesh)=>sum+mesh.getTotalIndices()/3,0);
  return {
   scene,
-  treeMeshCount: treeMeshes.length,
   setCullingDemo(enabled){
    camera.viewport=enabled?new Viewport(.19,.19,.62,.62):new Viewport(0,0,1,1);
    camera.fov=enabled?2*Math.atan(Math.tan(normalFov/2)*.62):normalFov;
@@ -382,11 +406,15 @@ export function createGinkgoScene(engine) {
    fallingMaterial.setFloat('time',time);
    camera.setTarget(new Vector3(look.x*7,15.5+look.y*6,8));
   },
-  getVisibleTreeMeshCount(){
-   const active=scene.getActiveMeshes();
-   let visible=0;
-   for(let i=0;i<active.length;i++)if(treeMeshes.includes(active.data[i]))visible++;
-   return visible;
+  getTreeVisibilityStats(){
+   const activeMeshes=scene.getActiveMeshes();
+   const active=new Set(activeMeshes.data.slice(0,activeMeshes.length));
+   let visibleMeshes=0,visibleTriangles=0;
+   for(const mesh of treeMeshes)if(active.has(mesh)){
+    visibleMeshes++;
+    visibleTriangles+=mesh.getTotalIndices()/3;
+   }
+   return {visibleMeshes,totalMeshes:treeMeshes.length,visibleTriangles,totalTriangles:totalTreeTriangles};
   }
  };
 }
