@@ -1,7 +1,7 @@
 import { Engine } from '@babylonjs/core/Engines/engine';
 import { createGinkgoScene } from './createGinkgoScene';
 
-export function createLandscape(canvas, { onCullingChange } = {}) {
+export function createLandscape(canvas, { onCullingChange, onStatsChange } = {}) {
   const engine = new Engine(canvas, true, { preserveDrawingBuffer: true, stencil: false });
   const isNarrowScreen = () => canvas.clientWidth < 700;
   const maxPixelRatio = () => Math.min(Math.max(window.devicePixelRatio || 1, 1), 1.25);
@@ -15,6 +15,13 @@ export function createLandscape(canvas, { onCullingChange } = {}) {
   let lastCullingCount = null;
   let lastRenderTime = -Infinity, needsRender = true;
   let sampleStart = performance.now(), sampledFrames = 0;
+  let statsEnabled = false, statsStart = performance.now(), statsFrames = 0;
+  let statsLastFrame = null;
+  const frameIntervals = [], renderTimes = [];
+  const resetStats = () => {
+    statsStart = performance.now(); statsFrames = 0; statsLastFrame = null;
+    frameIntervals.length = 0; renderTimes.length = 0;
+  };
 
   const observer = new IntersectionObserver(([entry]) => { active = entry.isIntersecting; }, { threshold: 0.01 });
   observer.observe(canvas);
@@ -46,12 +53,14 @@ export function createLandscape(canvas, { onCullingChange } = {}) {
       sampledFrames = 0;
       lastRenderTime = -Infinity;
       needsRender = true;
+      if (statsEnabled) resetStats();
       return;
     }
     const staticFrame = paused || reducedMotion;
     if (staticFrame && !needsRender) {
       sampleStart = now;
       sampledFrames = 0;
+      if (statsEnabled) resetStats();
       return;
     }
     const targetFps = sceneOnly ? 60 : 30;
@@ -61,6 +70,29 @@ export function createLandscape(canvas, { onCullingChange } = {}) {
     needsRender = false;
     ginkgo.update(elapsed, look);
     ginkgo.scene.render();
+    if (statsEnabled && !staticFrame) {
+      const renderEnd = performance.now();
+      if (statsLastFrame !== null) frameIntervals.push(now - statsLastFrame);
+      statsLastFrame = now;
+      renderTimes.push(renderEnd - now);
+      statsFrames++;
+      if (renderEnd - statsStart >= 1000) {
+        const sorted = [...frameIntervals].sort((a, b) => a - b);
+        const canvasWidth = canvas.clientWidth || 1;
+        onStatsChange?.({
+          fps: Math.round(statsFrames * 1000 / (renderEnd - statsStart)),
+          frameP95: sorted.length ? sorted[Math.ceil(sorted.length * .95) - 1] : null,
+          renderMs: renderTimes.reduce((sum, value) => sum + value, 0) / renderTimes.length,
+          visibleMeshes: ginkgo.getVisibleTreeMeshCount(),
+          totalMeshes: ginkgo.treeMeshCount,
+          width: canvas.width,
+          height: canvas.height,
+          pixelRatio: canvas.width / canvasWidth,
+          targetFps,
+        });
+        resetStats();
+      }
+    }
     if (cullingDemo) {
       const visibleCount = ginkgo.getVisibleTreeMeshCount();
       if (visibleCount !== lastCullingCount) {
@@ -85,13 +117,19 @@ export function createLandscape(canvas, { onCullingChange } = {}) {
   });
 
   return {
-    setPaused(value) { paused = value; lastRenderTime = -Infinity; needsRender = true; },
+    setPaused(value) { paused = value; lastRenderTime = -Infinity; needsRender = true; if (statsEnabled) resetStats(); },
+    setStatsEnabled(value) {
+      statsEnabled = value;
+      resetStats();
+      onStatsChange?.(null);
+    },
     setSceneOnly(value) {
       sceneOnly = value;
       lastRenderTime = -Infinity;
       needsRender = true;
       sampleStart = performance.now();
       sampledFrames = 0;
+      if (statsEnabled) resetStats();
     },
     setCullingDemo(value) {
       cullingDemo = value;
@@ -100,6 +138,7 @@ export function createLandscape(canvas, { onCullingChange } = {}) {
       onCullingChange?.(null);
       lastRenderTime = -Infinity;
       needsRender = true;
+      if (statsEnabled) resetStats();
     },
     dispose() {
       resizeObserver.disconnect();

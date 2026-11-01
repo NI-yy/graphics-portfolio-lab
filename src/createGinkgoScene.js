@@ -371,6 +371,7 @@ export function createGinkgoScene(engine) {
  fallingMesh.alwaysSelectAsActiveMesh=true;
  return {
   scene,
+  treeMeshCount: treeMeshes.length,
   setCullingDemo(enabled){
    camera.viewport=enabled?new Viewport(.19,.19,.62,.62):new Viewport(0,0,1,1);
    camera.fov=enabled?2*Math.atan(Math.tan(normalFov/2)*.62):normalFov;
