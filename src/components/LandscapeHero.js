@@ -70,7 +70,7 @@ export default function LandscapeHero({ sceneOnly, cullingDemo, onToggleScene })
     </aside>}
     <aside className="landscape-controls" aria-label="イチョウ並木の操作">
       <div className="landscape-heading">
-        <span className="landscape-title">日常で見た風景を少しずつ描いています</span>
+        <span className="landscape-title">日常で見た風景を描いています</span>
       </div>
       <div className="scene-actions">
         <button className="scene-view-button" type="button" onClick={onToggleScene} aria-pressed={sceneOnly}>{sceneOnly ? '作品を見る' : '景色を見る'} <span aria-hidden="true">↗</span></button>
