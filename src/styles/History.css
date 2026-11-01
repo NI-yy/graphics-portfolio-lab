@@ -22,6 +22,14 @@
   min-height: 100px;
 }
 
+.history-section .MuiTimelineItem-root:last-child {
+  min-height: 125px;
+}
+
+.history-section .MuiTimelineItem-root:last-child .MuiTimelineConnector-root {
+  flex: 0 0 42px;
+}
+
 /* カスタムアイコンのスタイル (サイズ調整) */
 .custom-timeline-icon {
   width: 20px; /* 画像に合わせて調整 */
