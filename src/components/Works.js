@@ -24,7 +24,7 @@ import webpage_icon from '../img/webpage-icon.png';
 function Works() {
   const worksData = [
     {
-      title: 'AhiArt',
+      title: 'AshiArt',
       lines: [
         'JPHACKS 2025 Best Hack Award受賞作品',
         '一筆書きで描いた絵から独自のアルゴリズムで実際に走れる最適なコースを設計し、GPS アートによる、いつもと違ったランニング体験を提供する',
