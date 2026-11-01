@@ -19,9 +19,9 @@
 .performance-hud dt { color: #c9d0c4; }
 .performance-hud dd { margin: 0; text-align: right; white-space: nowrap; }
 .performance-hud dd small { color: #c9d0c4; }
-.landscape-controls { position: fixed; z-index: 30; left: 4vw; bottom: 35px; width: 260px; color: #f4f4e9; padding: 17px 18px 15px; border: 1px solid #ffffff36; border-radius: 12px; background: rgba(22,28,24,.82); backdrop-filter: blur(18px); box-shadow: 0 12px 36px #11180e40; box-sizing: border-box; }
+.landscape-controls { position: fixed; z-index: 30; left: 4vw; bottom: 35px; width: 300px; color: #f4f4e9; padding: 17px 18px 15px; border: 1px solid #ffffff36; border-radius: 12px; background: rgba(22,28,24,.82); backdrop-filter: blur(18px); box-shadow: 0 12px 36px #11180e40; box-sizing: border-box; }
 .landscape-heading { display: flex; flex-direction: column; gap: 3px; padding-bottom: 13px; border-bottom: 1px solid #ffffff2b; }
-.landscape-title { color: var(--color-navy); font-family: inherit; font-size: 13px; font-weight: 400; letter-spacing: normal; line-height: 1.95; }
+.landscape-title { color: var(--color-navy); font-family: inherit; font-size: 13px; font-weight: 400; letter-spacing: normal; line-height: 1.95; white-space: nowrap; }
 .scene-actions { display: flex; gap: 8px; margin-top: 13px; }
 .scene-actions button { cursor: pointer; border-radius: 7px; min-height: 38px; transition: background .2s ease, border-color .2s ease; }
 .scene-view-button { flex: 1; display: flex; justify-content: space-between; align-items: center; padding: 8px 11px; border: 1px solid #d6c586; color: #252b20; background: #d6c586; font-size: 12px; }
@@ -35,10 +35,10 @@
 @media(max-width: 760px) {
   .performance-hud { top: max(12px, env(safe-area-inset-top)); right: 12px; }
   .culling-demo-hud { top: max(12px, env(safe-area-inset-top)); left: 12px; max-width: min(280px, calc(100vw - 24px)); }
-  .landscape-controls { left: 12px; right: 12px; bottom: max(10px, env(safe-area-inset-bottom)); width: auto; padding: 10px 12px; display: flex; align-items: center; gap: 12px; }
-  .landscape-heading { flex: 1; min-width: 0; padding: 0; border: 0; }
+  .landscape-controls { left: 12px; right: 12px; bottom: max(10px, env(safe-area-inset-bottom)); width: auto; padding: 10px 12px; }
+  .landscape-heading { padding-bottom: 8px; }
   .landscape-title { font-size: 12px; }
-  .scene-actions { margin: 0; flex: 0 0 auto; }
+  .scene-actions { margin-top: 9px; }
   .scene-view-button { min-width: 96px; }
   .scene-status, .scene-hint { display: none; }
 }
